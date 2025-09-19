@@ -8,8 +8,8 @@ const CustomersList = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
-          <p className="text-gray-600">Manage customer accounts and orders</p>
+          <h1 className="text-2xl font-bold text-foreground">Customers</h1>
+          <p className="text-muted-foreground">Manage customer accounts and orders</p>
         </div>
         <Link to="/staff-dashboard/customers/create">
           <Button>
@@ -21,10 +21,10 @@ const CustomersList = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Customer List</CardTitle>
+          <CardTitle>Feature Coming Soon</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Customer list implementation coming soon...</p>
+          <p className="text-muted-foreground">This feature is currently under development and will be available soon.</p>
         </CardContent>
       </Card>
     </div>

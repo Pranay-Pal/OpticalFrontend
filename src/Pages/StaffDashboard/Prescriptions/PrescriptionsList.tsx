@@ -8,8 +8,8 @@ const PrescriptionsList = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Prescriptions</h1>
-          <p className="text-gray-600">Manage patient prescriptions and medical records</p>
+          <h1 className="text-2xl font-bold text-foreground">Prescriptions</h1>
+          <p className="text-muted-foreground">Manage patient prescriptions and medical records</p>
         </div>
         <Link to="/staff-dashboard/prescriptions/create">
           <Button>
@@ -21,10 +21,10 @@ const PrescriptionsList = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Prescription List</CardTitle>
+          <CardTitle>Feature Coming Soon</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Prescription list implementation coming soon...</p>
+          <p className="text-muted-foreground">This feature is currently under development and will be available soon.</p>
         </CardContent>
       </Card>
     </div>

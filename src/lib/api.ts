@@ -43,9 +43,9 @@ apiClient.interceptors.response.use(
       
       // Role-aware redirect
       if (userType === 'shopAdmin') {
-        window.location.href = '/shop-admin-login';
+        window.location.href = '/login';
       } else {
-        window.location.href = '/staff-login';
+        window.location.href = '/login';
       }
     }
     

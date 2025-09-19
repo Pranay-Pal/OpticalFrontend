@@ -15,6 +15,7 @@ import {
   Calendar,
   Target
 } from "lucide-react";
+import { MetricCard } from "@/components/MetricCard";
 
 type Metrics = {
   today: {
@@ -34,59 +35,6 @@ type Metrics = {
     lowStockAlerts: number;
   };
 };
-
-function MetricCard({ 
-  title, 
-  value, 
-  description, 
-  icon: Icon, 
-  trend, 
-  trendValue, 
-  className = "" 
-}: {
-  title: string;
-  value: string | number;
-  description: string;
-  icon: any;
-  trend?: "up" | "down" | "neutral";
-  trendValue?: number;
-  className?: string;
-}) {
-  const getTrendIcon = () => {
-    if (trend === "up") return <TrendingUp className="h-4 w-4 text-green-500" />;
-    if (trend === "down") return <TrendingDown className="h-4 w-4 text-red-500" />;
-    return null;
-  };
-
-  const getTrendColor = () => {
-    if (trend === "up") return "text-green-600";
-    if (trend === "down") return "text-red-600";
-    return "text-muted-foreground";
-  };
-
-  return (
-    <Card className={`hover:shadow-md transition-shadow ${className}`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <div className="flex items-center space-x-2 text-xs mt-1">
-          <p className="text-muted-foreground">{description}</p>
-          {trend && trendValue !== undefined && (
-            <div className={`flex items-center space-x-1 ${getTrendColor()}`}>
-              {getTrendIcon()}
-              <span className="font-medium">{Math.abs(trendValue)}%</span>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 function LoadingCards() {
   return (
@@ -182,28 +130,28 @@ export default function DashboardOverview() {
             value={`₹${metrics.today.sales?.toLocaleString() || 0}`}
             description="Revenue generated today"
             icon={DollarSign}
-            className="border-green-200 bg-green-50/50"
+            className="border-non-photo-blue/20 bg-non-photo-blue/10"
           />
           <MetricCard
             title="Orders"
             value={metrics.today.orders || 0}
             description="Orders processed today"
             icon={ShoppingCart}
-            className="border-blue-200 bg-blue-50/50"
+            className="border-celeste/20 bg-celeste/10"
           />
           <MetricCard
             title="Patients"
             value={metrics.today.patients || 0}
             description="Patients served today"
             icon={Users}
-            className="border-purple-200 bg-purple-50/50"
+            className="border-mimi-pink/20 bg-mimi-pink/10"
           />
           <MetricCard
             title="Active Staff"
             value={metrics.today.staff || 0}
             description="Staff members working"
             icon={UserCheck}
-            className="border-orange-200 bg-orange-50/50"
+            className="border-lavender-pink/20 bg-lavender-pink/10"
           />
         </div>
       </div>
@@ -220,14 +168,14 @@ export default function DashboardOverview() {
             <CardDescription>Your business growth this month</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-mint-cream/30 rounded-lg">
               <div>
                 <p className="text-sm font-medium">Total Sales</p>
-                <p className="text-2xl font-bold text-green-600">₹{metrics.monthly.sales?.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-non-photo-blue">₹{metrics.monthly.sales?.toLocaleString()}</p>
               </div>
               <div className="text-right">
                 <div className={`flex items-center space-x-1 ${
-                  metrics.monthly.salesGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                  metrics.monthly.salesGrowth >= 0 ? 'text-non-photo-blue' : 'text-destructive'
                 }`}>
                   {metrics.monthly.salesGrowth >= 0 ? 
                     <TrendingUp className="h-4 w-4" /> : 
@@ -238,14 +186,14 @@ export default function DashboardOverview() {
                 <p className="text-xs text-muted-foreground">vs last month</p>
               </div>
             </div>
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-mint-cream/30 rounded-lg">
               <div>
                 <p className="text-sm font-medium">Total Orders</p>
-                <p className="text-2xl font-bold text-blue-600">{metrics.monthly.orders}</p>
+                <p className="text-2xl font-bold text-celeste">{metrics.monthly.orders}</p>
               </div>
               <div className="text-right">
                 <div className={`flex items-center space-x-1 ${
-                  metrics.monthly.orderGrowth >= 0 ? 'text-green-600' : 'text-red-600'
+                  metrics.monthly.orderGrowth >= 0 ? 'text-non-photo-blue' : 'text-destructive'
                 }`}>
                   {metrics.monthly.orderGrowth >= 0 ? 
                     <TrendingUp className="h-4 w-4" /> : 
@@ -269,20 +217,20 @@ export default function DashboardOverview() {
             <CardDescription>Current stock overview</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-mint-cream/30 rounded-lg">
               <div>
                 <p className="text-sm font-medium">Total Products</p>
                 <p className="text-2xl font-bold">{metrics.inventory.totalProducts}</p>
               </div>
               <Package className="h-8 w-8 text-muted-foreground" />
             </div>
-            <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
               <div>
-                <p className="text-sm font-medium text-red-800">Low Stock Alerts</p>
-                <p className="text-2xl font-bold text-red-600">{metrics.inventory.lowStockAlerts}</p>
+                <p className="text-sm font-medium text-destructive">Low Stock Alerts</p>
+                <p className="text-2xl font-bold text-destructive">{metrics.inventory.lowStockAlerts}</p>
               </div>
               <div className="flex items-center">
-                <AlertTriangle className="h-8 w-8 text-red-500" />
+                <AlertTriangle className="h-8 w-8 text-destructive" />
                 {metrics.inventory.lowStockAlerts > 0 && (
                   <Badge variant="destructive" className="ml-2">
                     Action Required

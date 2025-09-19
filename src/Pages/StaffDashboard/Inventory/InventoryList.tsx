@@ -8,8 +8,8 @@ const InventoryList = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-          <p className="text-gray-600">Manage products and stock levels</p>
+          <h1 className="text-2xl font-bold text-foreground">Inventory</h1>
+          <p className="text-muted-foreground">Manage products and stock levels</p>
         </div>
         <Link to="/staff-dashboard/inventory/products/create">
           <Button>
@@ -21,10 +21,10 @@ const InventoryList = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Product Catalog</CardTitle>
+          <CardTitle>Feature Coming Soon</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Inventory list implementation coming soon...</p>
+          <p className="text-muted-foreground">This feature is currently under development and will be available soon.</p>
         </CardContent>
       </Card>
     </div>

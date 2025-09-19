@@ -4,16 +4,16 @@ const CustomerDetails = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Customer Details</h1>
-        <p className="text-gray-600">View and edit customer information</p>
+        <h1 className="text-2xl font-bold text-foreground">Customer Details</h1>
+        <p className="text-muted-foreground">View and edit customer information</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Customer Profile</CardTitle>
+          <CardTitle>Feature Coming Soon</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Customer details view coming soon...</p>
+          <p className="text-muted-foreground">This feature is currently under development and will be available soon.</p>
         </CardContent>
       </Card>
     </div>

@@ -8,8 +8,8 @@ const InvoicesList = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
-          <p className="text-gray-600">Manage billing and payment records</p>
+          <h1 className="text-2xl font-bold text-foreground">Invoices</h1>
+          <p className="text-muted-foreground">Manage billing and payment records</p>
         </div>
         <Link to="/staff-dashboard/invoices/create">
           <Button>
@@ -21,10 +21,10 @@ const InvoicesList = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Invoice List</CardTitle>
+          <CardTitle>Feature Coming Soon</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Invoice list implementation coming soon...</p>
+          <p className="text-muted-foreground">This feature is currently under development and will be available soon.</p>
         </CardContent>
       </Card>
     </div>

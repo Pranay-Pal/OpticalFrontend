@@ -4,16 +4,16 @@ const InvoiceCreate = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Create Invoice</h1>
-        <p className="text-gray-600">Generate new invoice for customer</p>
+        <h1 className="text-2xl font-bold text-foreground">Create Invoice</h1>
+        <p className="text-muted-foreground">Generate new invoice for customer</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Invoice Details</CardTitle>
+          <CardTitle>Feature Coming Soon</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Invoice creation wizard coming soon...</p>
+          <p className="text-muted-foreground">This feature is currently under development and will be available soon.</p>
         </CardContent>
       </Card>
     </div>

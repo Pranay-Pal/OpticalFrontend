@@ -4,16 +4,16 @@ const ProductCreate = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
-        <p className="text-gray-600">Add a new product to inventory</p>
+        <h1 className="text-2xl font-bold text-foreground">Add New Product</h1>
+        <p className="text-muted-foreground">Add a new product to inventory</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Product Information</CardTitle>
+          <CardTitle>Feature Coming Soon</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Product creation form coming soon...</p>
+          <p className="text-muted-foreground">This feature is currently under development and will be available soon.</p>
         </CardContent>
       </Card>
     </div>
