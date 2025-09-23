@@ -1,9 +1,31 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { Link } from "react-router";
+import { StaffAPI } from "@/lib/staffApi";
 
 const PrescriptionsList = () => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [list, setList] = useState<any>({ prescriptions: [], total: 0, page: 1 });
+  const [patientId, setPatientId] = useState<string>("");
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await StaffAPI.listPrescriptions({ page: 1, limit: 10, patientId: patientId ? Number(patientId) : undefined });
+      setList(res || { prescriptions: [] });
+    } catch (e: any) {
+      setError(e.message || "Failed to load");
+    } finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -19,12 +41,40 @@ const PrescriptionsList = () => {
         </Link>
       </div>
 
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>Prescription List</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-gray-500">Prescription list implementation coming soon...</p>
+        <CardContent className="space-y-3">
+          {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+          <div className="flex gap-2 items-center">
+            <Input placeholder="Filter by Patient ID" value={patientId} onChange={(e) => setPatientId(e.target.value)} />
+            <Button variant="outline" onClick={fetchData}>Apply</Button>
+          </div>
+          {loading ? (
+            <Skeleton className="h-24 w-full" />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-muted-foreground">
+                    <th className="py-2 pr-4">ID</th>
+                    <th className="py-2 pr-4">Patient</th>
+                    <th className="py-2 pr-4">Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(list.prescriptions ?? []).map((p: any) => (
+                    <tr key={p.id} className="border-t">
+                      <td className="py-2 pr-4">{p.id}</td>
+                      <td className="py-2 pr-4">{p.patient?.name || p.patientId}</td>
+                      <td className="py-2 pr-4">{new Date(p.createdAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -39,7 +39,7 @@ function SelectLogin() {
   } = useForm<LoginFormInputs>();
 
   const onSubmit = (data: LoginFormInputs) => {
-    if (selectedType === "retailer" || selectedType === "admin") return; // disabled
+    if (selectedType === "admin") return; // admin disabled
     dispatch(login({ ...data, type: selectedType }));
   };
 
@@ -47,6 +47,7 @@ function SelectLogin() {
     if (token && type) {
       if (type === "staff") navigate("/staff-dashboard", { replace: true });
       if (type === "shopAdmin") navigate("/shop-admin-dashboard", { replace: true });
+      if (type === "retailer") navigate("/retailer-dashboard", { replace: true });
     }
   }, [token, type, navigate]);
 
@@ -57,7 +58,7 @@ function SelectLogin() {
       case "shopAdmin":
         return "Shop Admin";
       case "retailer":
-        return "Retailer (Coming Soon)";
+        return "Retailer";
       case "admin":
         return "Admin (Coming Soon)";
       default:
@@ -98,8 +99,8 @@ function SelectLogin() {
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setSelectedType("staff")}>Staff</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setSelectedType("shopAdmin")}>Shop Admin</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setSelectedType("retailer")}>Retailer</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="opacity-60 pointer-events-none">Retailer (Coming Soon)</DropdownMenuItem>
               <DropdownMenuItem className="opacity-60 pointer-events-none">Admin (Coming Soon)</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -141,7 +142,7 @@ function SelectLogin() {
 
         {error && <p className="text-xs text-red-500 text-center">{error}</p>}
 
-          <Button type="submit" className="w-full clay-button" disabled={loading || selectedType === "retailer" || selectedType === "admin"}>
+          <Button type="submit" className="w-full clay-button" disabled={loading || selectedType === "admin"}>
             {loading ? "Signing in..." : `Sign in as ${typeLabel}`}
           </Button>
         </form>

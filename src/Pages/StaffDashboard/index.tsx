@@ -16,6 +16,10 @@ import InvoicesList from "./Invoices/InvoicesList";
 import InvoiceCreate from "./Invoices/InvoiceCreate";
 import PrescriptionsList from "./Prescriptions/PrescriptionsList";
 import PrescriptionCreate from "./Prescriptions/PrescriptionCreate";
+import Reports from "./Reports/Reports";
+import Royalty from "./Royalty/Royalty";
+import StockReceipts from "./StockReceipts/StockReceipts";
+import GiftCards from "./GiftCards/GiftCards";
 
 const StaffDashboard = () => {
   return (
@@ -50,6 +54,18 @@ const StaffDashboard = () => {
         {/* Prescription Management */}
         <Route path="prescriptions" element={<PrescriptionsList />} />
         <Route path="prescriptions/create" element={<PrescriptionCreate />} />
+
+  {/* Reports */}
+  <Route path="reports" element={<Reports />} />
+
+  {/* Royalty */}
+  <Route path="royalty" element={<Royalty />} />
+
+  {/* Stock Receipts */}
+  <Route path="stock-receipts" element={<StockReceipts />} />
+
+  {/* Gift Cards */}
+  <Route path="gift-cards" element={<GiftCards />} />
         
         {/* Catch all - redirect to dashboard */}
         <Route path="*" element={<Navigate to="/staff-dashboard" replace />} />

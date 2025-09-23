@@ -7,7 +7,7 @@ export type AuthType = 'staff' | 'shopAdmin' | 'retailer' | 'admin' | null;
 interface AuthState {
   token: string | null;
   type: AuthType;
-  user: any;
+  user: unknown;
   loading: boolean;
   error: string | null;
 }
@@ -19,7 +19,9 @@ const initialState: AuthState = {
     if (stored) {
       try {
         return JSON.parse(stored).type || null;
-      } catch {}
+      } catch {
+        return null;
+      }
     }
     return null;
   })(),
@@ -28,7 +30,9 @@ const initialState: AuthState = {
     if (stored) {
       try {
         return JSON.parse(stored).user || null;
-      } catch {}
+      } catch {
+        return null;
+      }
     }
     return null;
   })(),
@@ -46,15 +50,24 @@ export const login = createAsyncThunk(
     let url = '';
     if (type === 'staff') url = 'https://staff-optical-production.up.railway.app/api/auth/login/';
     if (type === 'shopAdmin') url = 'https://staff-optical-production.up.railway.app/shop-admin/auth/login';
-    // Add other types as needed
+    if (type === 'retailer') url = 'https://staff-optical-production.up.railway.app/retailer/auth/login';
+    
     try {
       const response = await axios.post(url, { email, password }, {
         headers: { 'Content-Type': 'application/json' },
       });
       console.log(response.data);
-      return { token: response.data.token, type, user: response.data[type === 'staff' ? 'staff' : 'shopAdmin'] };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Login failed');
+      
+      // Handle different response structures based on user type
+      let user;
+      if (type === 'staff') user = response.data.staff;
+      else if (type === 'shopAdmin') user = response.data.shopAdmin;
+      else if (type === 'retailer') user = response.data.retailer;
+      
+      return { token: response.data.token, type, user };
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message || 'Login failed';
+      return rejectWithValue(msg);
     }
   }
 );

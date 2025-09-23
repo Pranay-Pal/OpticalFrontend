@@ -1,6 +1,7 @@
 // Combined login is handled in SelectLogin
 import StaffDashboard from "./Pages/StaffDashboard/index";
 import SelectLogin from "./Pages/SelectLogin";
+import RetailerDashboard from "./Pages/RetailerDashboard";
 import { Routes, Route, Navigate } from "react-router";
 import { useAuth } from "./hooks/useAuth";
 import ShopAdminDashboard from "./Pages/ShopAdminDashboard/index";
@@ -33,6 +34,14 @@ function App() {
         element={
           <ProtectedRoute type="shopAdmin">
             <ShopAdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/retailer-dashboard/*"
+        element={
+          <ProtectedRoute type="retailer">
+            <RetailerDashboard />
           </ProtectedRoute>
         }
       />

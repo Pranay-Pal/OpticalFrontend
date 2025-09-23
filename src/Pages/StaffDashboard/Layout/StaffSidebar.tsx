@@ -16,12 +16,16 @@ import {
   ShoppingCart,
   Plus,
   TrendingUp,
+  Gift,
+  Receipt,
+  BarChart,
 } from "lucide-react";
 
+interface IconProps { className?: string }
 interface NavigationItem {
   name: string;
   href: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<IconProps>;
   badge?: string;
   submenu?: NavigationItem[];
 }
@@ -84,6 +88,26 @@ const navigation: NavigationItem[] = [
       { name: "Create Prescription", href: "/staff-dashboard/prescriptions/create", icon: Plus },
     ],
   },
+  {
+    name: "Reports",
+    href: "/staff-dashboard/reports",
+    icon: BarChart,
+  },
+  {
+    name: "Royalty",
+    href: "/staff-dashboard/royalty",
+    icon: TrendingUp,
+  },
+  {
+    name: "Stock Receipts",
+    href: "/staff-dashboard/stock-receipts",
+    icon: Receipt,
+  },
+  {
+    name: "Gift Cards",
+    href: "/staff-dashboard/gift-cards",
+    icon: Gift,
+  },
 ];
 
 interface StaffSidebarProps {
@@ -132,7 +156,7 @@ const StaffSidebar = ({ mobile = false, open = false, onClose }: StaffSidebarPro
                     : "hover:ring-1 hover:ring-primary/15"
                 )}
               >
-                <span className={cn("mr-3 h-5 w-5 flex-shrink-0", isActive(item.href) ? "text-primary" : "text-muted-foreground") as any}>
+                <span className={cn("mr-3 h-5 w-5 flex-shrink-0", isActive(item.href) ? "text-primary" : "text-muted-foreground")}>
                   <item.icon className="h-5 w-5" />
                 </span>
                 <span className="flex-1">{item.name}</span>
