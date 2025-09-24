@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, NavLink } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RetailerOverview from "./pages/RetailerOverview.tsx";
 import RetailerInventory from "./pages/RetailerInventory.tsx";
 import RetailerShops from "./pages/RetailerShops.tsx";
@@ -7,16 +7,35 @@ import RetailerDistributions from "./pages/RetailerDistributions.tsx";
 import RetailerReports from "./pages/RetailerReports.tsx";
 import RetailerProfile from "./pages/RetailerProfile.tsx";
 import { Menu } from "lucide-react";
+import { RetailerAPI } from "@/lib/retailerApi";
 
 export default function RetailerDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [brand, setBrand] = useState<string>("");
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const p = await RetailerAPI.getProfile();
+        if (!mounted) return;
+        const name = (p?.companyName as string) || (p?.name as string) || "";
+        setBrand(name);
+      } catch {
+        // non-fatal: keep default fallback label
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
   return (
     <div className="min-h-screen bg-app-gradient">
       {/* Simple sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-40 w-72 p-4 transition-transform md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:static glass-card`}
+      <div className={`fixed inset-y-0 left-0 z-40 w-72 p-4 transition-transform md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} glass-card rounded-none overflow-y-auto h-screen`}
            aria-hidden={!sidebarOpen && undefined}>
         <div className="flex items-center justify-between mb-6">
-          <div className="text-xl font-bold text-brand-gradient">Retailer</div>
+          <div className="text-xl font-bold text-brand-gradient" title={brand || undefined}>
+            {brand || "Dashboard"}
+          </div>
           <button className="md:hidden" onClick={() => setSidebarOpen(false)}>✕</button>
         </div>
         <nav className="space-y-2">
@@ -29,7 +48,7 @@ export default function RetailerDashboard() {
         </nav>
       </div>
 
-      <div className="md:ml-72">
+      <div className="md:ml-72 min-h-screen flex flex-col">
         <header className="sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b glass-card">
           <div className="flex items-center gap-3 px-4 py-3">
             <button className="md:hidden" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5"/></button>
