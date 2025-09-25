@@ -11,17 +11,28 @@ type StaffDetail = { id: number; name: string; email: string; role: string; isAc
 export default function StaffDetails() {
   const { staffId } = useParams();
   const [details, setDetails] = useState<StaffDetail | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!staffId) return;
-    ShopAdminAPI.staff.getById(parseInt(staffId)).then(data => setDetails(data));
+    (async () => {
+      setError(null);
+      try {
+        const data = await ShopAdminAPI.staff.getById(parseInt(staffId));
+        setDetails(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    })();
   }, [staffId]);
 
-  if (!details) return <div>Loading...</div>;
+  if (!details && !error) return <div>Loading...</div>;
 
   return (
     <div className="max-w-3xl mx-auto">
-      <Card className="mb-4">
+      {error && <Card className="mb-4 p-4 text-red-600">{error}</Card>}
+      {details && (
+      <Card className="mb-4 p-4">
         <h2 className="font-bold mb-2">Staff Details</h2>
         <div>Name: {details.name}</div>
         <div>Email: {details.email}</div>
@@ -29,7 +40,9 @@ export default function StaffDetails() {
         <div>Status: {details.isActive ? "Active" : "Inactive"}</div>
         <div>Joined: {new Date(details.createdAt).toLocaleDateString()}</div>
       </Card>
-      <Card className="mb-4">
+      )}
+      {details && (
+      <Card className="mb-4 p-4">
         <h2 className="font-bold mb-2">Attendance</h2>
         <ul>
           {details.attendance.map((att: Attendance) => (
@@ -39,7 +52,9 @@ export default function StaffDetails() {
           ))}
         </ul>
       </Card>
-      <Card className="mb-4">
+      )}
+      {details && (
+      <Card className="mb-4 p-4">
         <h2 className="font-bold mb-2">Invoices</h2>
         <ul>
           {details.invoices.map((inv: Invoice) => (
@@ -49,7 +64,9 @@ export default function StaffDetails() {
           ))}
         </ul>
       </Card>
-      <Card>
+      )}
+      {details && (
+      <Card className="p-4">
         <h2 className="font-bold mb-2">Prescriptions</h2>
         <ul>
           {details.prescriptions.map((pres: Prescription) => (
@@ -59,6 +76,7 @@ export default function StaffDetails() {
           ))}
         </ul>
       </Card>
+      )}
     </div>
   );
 }
