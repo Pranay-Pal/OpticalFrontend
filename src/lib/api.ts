@@ -6,7 +6,7 @@ import { logout } from '../store/authSlice';
 // BASE AXIOS CONFIGURATION
 // ============================================================================
 
-export const BASE_URL = 'https://staff-production-c6d9.up.railway.app';
+export const BASE_URL = 'https://staff-production-bf87.up.railway.app';
 
 // Utility function for consistent API logging
 const logApiCall = (method: string, url: string, data?: unknown, response?: unknown) => {
@@ -638,7 +638,8 @@ export const ShopAdminAPI = {
 
   // Staff Management
   staff: {
-    getAll: () => shopAdminApi.get('/staff').then((r) => r.data),
+    getAll: (params: { page?: number; limit?: number; status?: 'ACTIVE' | 'INACTIVE' | 'ALL' } = {}) =>
+      shopAdminApi.get('/staff', { params }).then((r) => r.data),
     getById: (staffId: number) => shopAdminApi.get(`/staff/${staffId}`).then((r) => r.data),
     getActivities: (staffId: number, startDate?: string, endDate?: string) =>
       shopAdminApi.get('/staff/activities', {
@@ -648,6 +649,21 @@ export const ShopAdminAPI = {
           endDate: endDate || '2025-09-30' 
         }
       }).then((r) => r.data),
+  },
+
+  // Doctors Management
+  doctors: {
+    add: (data: {
+      email: string;
+      name: string;
+      phone?: string;
+      qualification?: string;
+      specialization?: string;
+      experience?: number;
+    }) => shopAdminApi.post('/doctors/add', data).then((r) => r.data),
+    getAll: () => shopAdminApi.get('/doctors').then((r) => r.data),
+    updateStatus: (doctorId: number, isActive: boolean) =>
+      shopAdminApi.put(`/doctors/${doctorId}/status`, { isActive }).then((r) => r.data),
   },
 
   // Reports

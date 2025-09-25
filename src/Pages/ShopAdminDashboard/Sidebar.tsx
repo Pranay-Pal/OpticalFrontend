@@ -18,7 +18,8 @@ import {
   UserCheck, 
   FileText,
   Calendar,
-  ShoppingCart
+  ShoppingCart,
+  Stethoscope
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
@@ -115,6 +116,12 @@ const navItems: Array<NavItem | NavSection> = [
         to: "/shop-admin-dashboard/staff", 
         icon: Users,
         description: "Manage staff"
+      },
+      { 
+        label: "Doctors", 
+        to: "/shop-admin-dashboard/doctors", 
+        icon: Stethoscope,
+        description: "Manage optometrists"
       },
     ]
   }

@@ -16,6 +16,7 @@ import PatientVisitHistory from "./Reports/PatientVisitHistory";
 import StaffList from "./Staff/StaffList";
 import StaffDetails from "./Staff/StaffDetails";
 import StaffActivities from "./Staff/StaffActivities";
+import DoctorsList from "./Doctors/DoctorsList";
 
 export default function ShopAdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -42,6 +43,7 @@ export default function ShopAdminDashboard() {
               <Route path="staff" element={<StaffList />} />
               <Route path="staff/:staffId" element={<StaffDetails />} />
               <Route path="staff/:staffId/activities" element={<StaffActivities />} />
+              <Route path="doctors" element={<DoctorsList />} />
               <Route path="*" element={<Navigate to="." />} />
             </Routes>
           </div>
