@@ -21,7 +21,7 @@ const InvoiceCreate = () => {
   const submit = async () => {
     try {
       setLoading(true); setError(null);
-      const payload: Parameters<typeof StaffAPI.createInvoice>[0] = {
+  const payload: Parameters<typeof StaffAPI.invoices.create>[0] = {
         patientId: patientId ? Number(patientId) : undefined,
         items: items.map((it) => ({
           productId: Number(it.productId),
@@ -32,7 +32,7 @@ const InvoiceCreate = () => {
         })),
         totalIgst: 0,
       };
-      const res = await StaffAPI.createInvoice(payload);
+  const res = await StaffAPI.invoices.create(payload);
       setResult(res);
     } catch (e) { const msg = e instanceof Error ? e.message : "Create failed"; setError(msg); }
     finally { setLoading(false); }

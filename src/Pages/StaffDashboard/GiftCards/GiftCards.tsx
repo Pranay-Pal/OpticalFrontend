@@ -28,7 +28,7 @@ export default function GiftCards() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <Input placeholder="Patient ID" value={issue.patientId} onChange={(e) => setIssue({ ...issue, patientId: e.target.value })} />
           <Input placeholder="Balance" type="number" value={issue.balance} onChange={(e) => setIssue({ ...issue, balance: e.target.value })} />
-          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.issueGiftCard(Number(issue.patientId), Number(issue.balance))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Issue</Button>
+          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.giftCards.issue(Number(issue.patientId), Number(issue.balance))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Issue</Button>
         </CardContent>
       </Card>
 
@@ -37,7 +37,7 @@ export default function GiftCards() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <Input placeholder="Code" value={redeem.code} onChange={(e) => setRedeem({ ...redeem, code: e.target.value })} />
           <Input placeholder="Amount" type="number" value={redeem.amount} onChange={(e) => setRedeem({ ...redeem, amount: e.target.value })} />
-          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.redeemGiftCard(redeem.code, Number(redeem.amount))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Redeem</Button>
+          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.giftCards.redeem(redeem.code, Number(redeem.amount))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Redeem</Button>
         </CardContent>
       </Card>
 
@@ -45,7 +45,7 @@ export default function GiftCards() {
         <CardHeader><CardTitle>Check Balance</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <Input placeholder="Code" value={check.code} onChange={(e) => setCheck({ ...check, code: e.target.value })} />
-          <Button variant="outline" onClick={async () => { try { setError(null); setResult(await StaffAPI.giftCardBalance(check.code)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Check</Button>
+          <Button variant="outline" onClick={async () => { try { setError(null); setResult(await StaffAPI.giftCards.getBalance(check.code)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Check</Button>
         </CardContent>
       </Card>
 

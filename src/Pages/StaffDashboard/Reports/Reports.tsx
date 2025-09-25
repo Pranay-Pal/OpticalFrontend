@@ -27,7 +27,7 @@ export default function Reports() {
         <CardHeader><CardTitle>Daily Report</CardTitle></CardHeader>
         <CardContent className="flex gap-2 items-center">
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.dailyReport(date)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Fetch</Button>
+          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.reports.dailyReport(date)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Fetch</Button>
         </CardContent>
       </Card>
 
@@ -36,7 +36,7 @@ export default function Reports() {
         <CardContent className="flex gap-2 items-center">
           <Input placeholder="Year" inputMode="numeric" value={ym.year} onChange={(e) => setYm({ ...ym, year: e.target.value })} />
           <Input placeholder="Month" inputMode="numeric" value={ym.month} onChange={(e) => setYm({ ...ym, month: e.target.value })} />
-          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.monthlyReport(Number(ym.year), Number(ym.month))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Fetch</Button>
+          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.reports.monthlyReport(Number(ym.year), Number(ym.month))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Fetch</Button>
         </CardContent>
       </Card>
 
@@ -46,9 +46,9 @@ export default function Reports() {
           <div className="flex gap-2 items-center">
             <Input type="date" value={range.start} onChange={(e) => setRange({ ...range, start: e.target.value })} />
             <Input type="date" value={range.end} onChange={(e) => setRange({ ...range, end: e.target.value })} />
-            <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.staffSalesReport(range.start, range.end)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Staff Sales</Button>
-            <Button variant="outline" onClick={async () => { try { setError(null); setResult(await StaffAPI.salesByPriceTier(range.start, range.end)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>By Price Tier</Button>
-            <Button variant="secondary" onClick={async () => { try { setError(null); setResult(await StaffAPI.bestSellersByPriceTier(range.start, range.end, 5)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Best Sellers</Button>
+            <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.reports.staffSalesReport(range.start, range.end)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Staff Sales</Button>
+            <Button variant="outline" onClick={async () => { try { setError(null); setResult(await StaffAPI.reports.salesByPriceTier(range.start, range.end)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>By Price Tier</Button>
+            <Button variant="secondary" onClick={async () => { try { setError(null); setResult(await StaffAPI.reports.bestSellersByPriceTier(range.start, range.end, 5)); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Best Sellers</Button>
           </div>
         </CardContent>
       </Card>

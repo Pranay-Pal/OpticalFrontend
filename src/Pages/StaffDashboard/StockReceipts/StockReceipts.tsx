@@ -24,7 +24,7 @@ export default function StockReceipts() {
     try {
       setLoading(true);
       setError(null);
-      const res = (await StaffAPI.listStockReceipts({ status: status || undefined })) as ReceiptList;
+  const res = (await StaffAPI.stockReceipts.getAll({ status: status || undefined })) as ReceiptList;
       setList(res || { receipts: [] });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed";

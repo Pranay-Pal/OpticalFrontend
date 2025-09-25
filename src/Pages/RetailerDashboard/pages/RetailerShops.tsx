@@ -19,8 +19,8 @@ export default function RetailerShops() {
       try {
         setLoading(true);
         const [data, perf]: [ShopRow[], Performance] = await Promise.all([
-          RetailerAPI.shops(),
-          RetailerAPI.shopPerformance({ period: 'month' }),
+          RetailerAPI.shops.getAll(),
+          RetailerAPI.dashboard.shopPerformance({ period: 'month' }),
         ]);
         if (!mounted) return;
         setShops(data || []);

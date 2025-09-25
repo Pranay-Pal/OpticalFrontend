@@ -19,7 +19,7 @@ export default function RetailerReports() {
     (async () => {
       try {
         setLoading(true);
-        const data = await RetailerAPI.reports({ page: 1, limit: 10 });
+  const data = await RetailerAPI.reports.getAll({ page: 1, limit: 10 });
         if (!mounted) return;
         setReports((data as { reports: ReportRow[] }) || { reports: [] });
       } catch (e) {
@@ -71,8 +71,8 @@ export default function RetailerReports() {
             <Button
               onClick={async () => {
                 if (!startDate || !endDate) return;
-                try { await RetailerAPI.profitLoss({ startDate, endDate, format: 'json' });
-                  const data = await RetailerAPI.reports({ page: 1, limit: 10 });
+                try { await RetailerAPI.reports.profitLoss({ startDate, endDate, format: 'json' });
+                  const data = await RetailerAPI.reports.getAll({ page: 1, limit: 10 });
                   setReports((data as { reports: ReportRow[] }) || { reports: [] });
                 } catch {
                   // ignore transient errors
@@ -83,8 +83,8 @@ export default function RetailerReports() {
               variant="secondary"
               onClick={async () => {
                 if (!startDate || !endDate) return;
-                try { await RetailerAPI.taxReport({ startDate, endDate, format: 'json' });
-                  const data = await RetailerAPI.reports({ page: 1, limit: 10 });
+                try { await RetailerAPI.reports.taxReport({ startDate, endDate, format: 'json' });
+                  const data = await RetailerAPI.reports.getAll({ page: 1, limit: 10 });
                   setReports((data as { reports: ReportRow[] }) || { reports: [] });
                 } catch {
                   // ignore transient errors
@@ -94,8 +94,8 @@ export default function RetailerReports() {
             <Button
               variant="outline"
               onClick={async () => {
-                try { await RetailerAPI.stockValuation();
-                  const data = await RetailerAPI.reports({ page: 1, limit: 10 });
+                try { await RetailerAPI.reports.stockValuation();
+                  const data = await RetailerAPI.reports.getAll({ page: 1, limit: 10 });
                   setReports((data as { reports: ReportRow[] }) || { reports: [] });
                 } catch {
                   // ignore transient errors
@@ -130,8 +130,8 @@ export default function RetailerReports() {
                     <td className="py-2 pr-4">
                       <Button size="sm" variant="outline" onClick={async () => {
                         try {
-                          await RetailerAPI.deleteReport(r.id);
-                          const data = await RetailerAPI.reports({ page: 1, limit: 10 });
+                          await RetailerAPI.reports.delete(r.id);
+                          const data = await RetailerAPI.reports.getAll({ page: 1, limit: 10 });
                           setReports((data as { reports: ReportRow[] }) || { reports: [] });
                         } catch {
                           // ignore transient errors

@@ -21,8 +21,8 @@ export default function Royalty() {
         <CardHeader><CardTitle>Manage Points</CardTitle></CardHeader>
         <CardContent className="flex gap-2 items-center">
           <Input placeholder="Patient ID" value={patientId} onChange={(e) => setPatientId(e.target.value)} />
-          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.addRoyaltyPoints(Number(patientId))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Add +10</Button>
-          <Button variant="outline" onClick={async () => { try { setError(null); setResult(await StaffAPI.getRoyaltyPoints(Number(patientId))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>View</Button>
+          <Button onClick={async () => { try { setError(null); setResult(await StaffAPI.royalty.addRoyaltyPoints(Number(patientId))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>Add +10</Button>
+          <Button variant="outline" onClick={async () => { try { setError(null); setResult(await StaffAPI.royalty.getRoyaltyPoints(Number(patientId))); } catch (e) { const msg = e instanceof Error ? e.message : String(e); setError(msg); } }}>View</Button>
         </CardContent>
       </Card>
       {result !== null && <pre className="bg-muted/50 p-3 rounded-lg overflow-auto max-h-80 text-sm">{String(JSON.stringify(result, null, 2))}</pre>}

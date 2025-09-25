@@ -27,12 +27,12 @@ const ProductCreate = () => {
   const submit = async () => {
     try {
       setLoading(true); setError(null); setSuccess(null);
-      const payload: Parameters<typeof StaffAPI.addProduct>[0] = {
+  const payload: Parameters<typeof StaffAPI.inventory.addProduct>[0] = {
         ...form,
         basePrice: Number(form.basePrice),
         companyId: Number(form.companyId),
       };
-      await StaffAPI.addProduct(payload);
+  await StaffAPI.inventory.addProduct(payload);
       setSuccess("Product created successfully");
     } catch (e) { const msg = e instanceof Error ? e.message : "Create failed"; setError(msg); }
     finally { setLoading(false); }

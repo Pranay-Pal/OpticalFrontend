@@ -18,7 +18,7 @@ const PrescriptionsList = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await StaffAPI.listPrescriptions({ page: 1, limit: 10, patientId: patientId ? Number(patientId) : undefined });
+  const res = await StaffAPI.prescriptions.listPrescriptions({ page: 1, limit: 10, patientId: patientId ? Number(patientId) : undefined });
       setList((res as { prescriptions: PrescriptionRow[]; total?: number; page?: number }) || { prescriptions: [] });
     } catch (e) {
       const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;

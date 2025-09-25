@@ -17,7 +17,7 @@ const PrescriptionCreate = () => {
     if (!patientId) return;
     try {
       setLoading(true); setError(null);
-      const res = await StaffAPI.createPrescription({ patientId: Number(patientId), rightEye: right, leftEye: left });
+  const res = await StaffAPI.prescriptions.create({ patientId: Number(patientId), rightEye: right, leftEye: left });
       setResult(res);
     } catch (e) {
       const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;

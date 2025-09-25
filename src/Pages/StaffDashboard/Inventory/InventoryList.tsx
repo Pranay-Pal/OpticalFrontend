@@ -23,7 +23,7 @@ const InventoryList = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = (await StaffAPI.getInventory()) as InventoryResponse;
+  const res = (await StaffAPI.inventory.getInventory()) as InventoryResponse;
       setData(res || { inventory: [], summary: null });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load inventory";
