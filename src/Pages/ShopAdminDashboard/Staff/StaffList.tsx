@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router";
+import { ShopAdminAPI } from "@/lib/api";
 
 type StaffMember = { id: number; name: string; email: string; role: string; totalSales: number; totalOrders: number; isActive: boolean };
 
@@ -12,12 +12,7 @@ export default function StaffList() {
   const pageSize = 10;
 
   useEffect(() => {
-      axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/staff", {
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      }
-    }).then(res => setStaff(res.data));
+    ShopAdminAPI.staff.getAll().then(data => setStaff(data));
   }, []);
 
   const paginated = staff.slice((page - 1) * pageSize, page * pageSize);

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RetailerAPI } from "@/lib/retailerApi";
+import { RetailerAPI } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,8 +28,8 @@ export default function RetailerInventory() {
       try {
         setLoading(true);
         const [s, a] = await Promise.all([
-          RetailerAPI.inventorySummary(),
-          RetailerAPI.inventoryAnalytics(),
+          RetailerAPI.inventory.summary(),
+          RetailerAPI.dashboard.inventoryAnalytics(),
         ]);
         if (!mounted) return;
         setSummary(s);
@@ -240,7 +240,7 @@ function ProductsTable() {
   const fetchData = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await RetailerAPI.myProducts({
+      const res = await RetailerAPI.inventory.myProducts({
         search: query || undefined,
         eyewearType: (eyewearType as 'GLASSES' | 'SUNGLASSES' | 'LENSES' | '') || undefined,
         page,
@@ -320,7 +320,7 @@ function CompaniesSection() {
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const res = await RetailerAPI.companies();
+      const res = await RetailerAPI.inventory.companies();
       setCompanies((res as CompanyRow[]) || []);
     } catch (e) {
       const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
@@ -352,7 +352,7 @@ function CompaniesSection() {
                 <Button onClick={async () => {
                   if (!newCompany.name.trim()) return;
                   try {
-                    await RetailerAPI.addCompany({ name: newCompany.name.trim(), description: newCompany.description || undefined });
+                    await RetailerAPI.inventory.addCompany({ name: newCompany.name.trim(), description: newCompany.description || undefined });
                     setNewCompany({ name: "", description: "" });
                     setOpenAdd(false);
                     await fetchCompanies();
@@ -400,7 +400,7 @@ function CompaniesSection() {
                           <div className="flex justify-end">
                             <Button onClick={async () => {
                               try {
-                                await RetailerAPI.updateCompany(edit.id!, { name: edit.name || undefined, description: edit.description || undefined });
+                                await RetailerAPI.inventory.updateCompany(edit.id!, { name: edit.name || undefined, description: edit.description || undefined });
                                 setEdit({ open: false, name: "", description: "" });
                                 await fetchCompanies();
                               } catch {

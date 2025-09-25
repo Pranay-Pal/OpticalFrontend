@@ -46,7 +46,7 @@ const PatientEdit = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.patients.getById(parseInt(id), shopId);
+        const response = await api.patients.getById(parseInt(id));
         const patientData = response.data;
         
         // Populate form with existing data

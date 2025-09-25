@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// Using native overflow for reliability in fixed sidebar (Radix ScrollArea sometimes interferes with flex height constraints)
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "react-router";
+import { useEffect, useState } from "react";
+import { ShopAdminAPI } from "@/lib/api";
 import { 
   LayoutDashboard, 
   TrendingUp, 
@@ -67,17 +70,28 @@ const navItems: Array<NavItem | NavSection> = [
         description: "Product performance"
       },
       { 
+        label: "Staff Sales", 
+        to: "/shop-admin-dashboard/reports/staff-sales", 
+        icon: BarChart3,
+        description: "Sales by staff"
+      },
+      { 
         label: "Inventory", 
         to: "/shop-admin-dashboard/reports/inventory", 
         icon: Package,
         description: "Stock management"
       },
       { 
+        label: "Inventory Status", 
+        to: "/shop-admin-dashboard/reports/inventory-status", 
+        icon: Package,
+        description: "Current stock levels"
+      },
+      { 
         label: "Low Stock Alerts", 
         to: "/shop-admin-dashboard/reports/low-stock", 
         icon: AlertTriangle,
-        description: "Stock alerts",
-        badge: "3"
+        description: "Stock alerts"
       },
       { 
         label: "Patients", 
@@ -108,6 +122,27 @@ const navItems: Array<NavItem | NavSection> = [
 
 function SidebarContent() {
   const location = useLocation();
+  const [lowStockCount, setLowStockCount] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await ShopAdminAPI.reports.getInventoryAlerts();
+        const list = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.alerts)
+            ? res.alerts
+            : Array.isArray(res?.data)
+              ? res.data
+              : [];
+        if (!cancelled) setLowStockCount(list.length || 0);
+      } catch {
+        if (!cancelled) setLowStockCount(0);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
   
   const isActiveLink = (to: string) => {
     return location.pathname === to || location.pathname.startsWith(to + "/");
@@ -135,18 +170,33 @@ function SidebarContent() {
             <div className="text-sm font-medium">{item.label}</div>
             <div className="text-xs text-muted-foreground">{item.description}</div>
           </div>
-          {item.badge && (
-            <Badge variant="destructive" className="ml-auto text-xs">
-              {item.badge}
-            </Badge>
-          )}
+          {(() => {
+            // Dynamic badge for Low Stock Alerts
+            if (item.label === "Low Stock Alerts" && lowStockCount > 0) {
+              return (
+                <Badge variant="destructive" className="ml-auto text-xs">
+                  {lowStockCount}
+                </Badge>
+              );
+            }
+            // Fallback for any static badge present on other items
+            if (item.badge) {
+              return (
+                <Badge variant="destructive" className="ml-auto text-xs">
+                  {item.badge}
+                </Badge>
+              );
+            }
+            return null;
+          })()}
         </Link>
       </Button>
     );
   };
 
   return (
-    <div className="flex flex-col h-full">
+    // min-h-0 allows the ScrollArea (flex child) to become scrollable instead of forcing parent to grow
+  <div className="flex flex-col h-full min-h-0">
       <div className="p-6">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-xl clay flex items-center justify-center">
@@ -158,8 +208,8 @@ function SidebarContent() {
         </div>
       </div>
       
-      <ScrollArea className="flex-1 px-4">
-        <div className="space-y-6">
+      <div className="flex-1 px-4 h-full overflow-y-auto custom-sidebar-scroll">
+        <div className="space-y-6 pb-24 pt-1">{/* larger bottom padding to ensure last item fully scrolls above scrollbar */}
           {navItems.map((section, index) => {
             if ('items' in section) {
               return (
@@ -180,7 +230,7 @@ function SidebarContent() {
             }
           })}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
@@ -189,13 +239,13 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   return (
     <>
       {/* Desktop Sidebar */}
-  <aside className="hidden md:flex md:w-80 md:flex-col md:fixed md:inset-y-0 z-50 border-r border-sidebar-border bg-sidebar">
+  <aside className="hidden md:flex md:w-80 md:flex-col md:fixed md:inset-y-0 z-50 border-r border-sidebar-border bg-sidebar h-screen">
         <SidebarContent />
       </aside>
       
       {/* Mobile Sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-  <SheetContent side="left" className="p-0 w-80 bg-sidebar">
+  <SheetContent side="left" className="p-0 w-80 bg-sidebar flex flex-col h-screen">
           <SidebarContent />
         </SheetContent>
       </Sheet>

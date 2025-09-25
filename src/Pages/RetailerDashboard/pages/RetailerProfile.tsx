@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { RetailerAPI } from "@/lib/retailerApi";
+import { RetailerAPI } from "@/lib/api";
 
 export default function RetailerProfile() {
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ export default function RetailerProfile() {
     (async () => {
       try {
         setLoading(true);
-        const data = await RetailerAPI.getProfile();
+        const data = await RetailerAPI.profile.get();
         if (!mounted) return;
         setProfile(data || {});
       } catch (e) {
@@ -41,7 +41,7 @@ export default function RetailerProfile() {
     try {
       setError(null);
       const { name, companyName, phone, address, gstNo, licenseNo } = profile;
-      const updated = await RetailerAPI.updateProfile({ name, companyName, phone, address, gstNo, licenseNo });
+      const updated = await RetailerAPI.profile.update({ name, companyName, phone, address, gstNo, licenseNo });
       setProfile(updated);
     } catch (e) {
       const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;
@@ -53,7 +53,7 @@ export default function RetailerProfile() {
     if (!pwd.currentPassword || !pwd.newPassword) return;
     try {
       setError(null);
-      await RetailerAPI.changePassword(pwd);
+      await RetailerAPI.profile.changePassword(pwd);
       setPwd({ currentPassword: "", newPassword: "" });
     } catch (e) {
       const message = typeof e === "object" && e && "message" in e ? String((e as { message?: unknown }).message) : undefined;

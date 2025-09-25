@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "react-router";
 import Pagination from "../Pagination/Pagination";
 import { Card } from "@/components/ui/card";
+import { ShopAdminAPI } from "@/lib/api";
 
 type StaffActivity = {
   id?: number;
@@ -20,12 +20,8 @@ export default function StaffActivities() {
 
   useEffect(() => {
     if (!staffId) return;
-    axios.get(`https://staff-production-c6d9.up.railway.app/shop-admin/staff/activities?staffId=${staffId}&startDate=2025-09-01&endDate=2025-09-30`, {
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      }
-    }).then(res => setActivities(res.data));
+    ShopAdminAPI.staff.getActivities(parseInt(staffId), '2025-09-01', '2025-09-30')
+      .then(data => setActivities(data));
   }, [staffId]);
 
   const paginated = activities.slice((page - 1) * pageSize, page * pageSize);

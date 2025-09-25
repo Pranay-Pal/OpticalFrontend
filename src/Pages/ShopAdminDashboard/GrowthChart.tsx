@@ -4,7 +4,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState, type ComponentType, type SVGProps } from "react";
-import axios from "axios";
+import { ShopAdminAPI } from "@/lib/api";
+import type { GrowthItem, GrowthPeriod, GrowthResponse } from "@/lib/types/shopAdmin";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -16,12 +17,7 @@ import {
   RefreshCcw
 } from "lucide-react";
 
-type GrowthData = {
-  period: string;
-  sales: number;
-  orders: number;
-  patients: number;
-};
+type GrowthData = GrowthItem;
 
 function GrowthMetricCard({ 
   title, 
@@ -200,25 +196,45 @@ function LoadingSkeleton() {
 
 export default function GrowthChart() {
   const [data, setData] = useState<GrowthData[]>([]);
-  const [period, setPeriod] = useState("monthly");
+  const [period, setPeriod] = useState<GrowthPeriod>("monthly");
   const [loading, setLoading] = useState(true);
+  const [cached, setCached] = useState<boolean | undefined>(undefined);
+  const [lastUpdated, setLastUpdated] = useState<string | undefined>(undefined);
 
   const fetchData = async (selectedPeriod: string) => {
     setLoading(true);
     try {
-      const response = await axios.get(
-  `https://staff-production-c6d9.up.railway.app/shop-admin/dashboard/growth?period=${selectedPeriod}`,
-        {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-      setData(response.data);
+      const res: GrowthResponse = await ShopAdminAPI.dashboard.getGrowth(selectedPeriod as GrowthPeriod);
+      // Extract meta
+      if (!Array.isArray(res) && res && typeof res === 'object') {
+        const obj = res as Record<string, unknown>;
+        setCached(typeof obj.cached === 'boolean' ? (obj.cached as boolean) : undefined);
+        setLastUpdated(typeof obj.lastUpdated === 'string' ? (obj.lastUpdated as string) : undefined);
+      } else {
+        setCached(undefined);
+        setLastUpdated(undefined);
+      }
+
+      // Normalize object response that may include metadata keys
+      const normalized: GrowthData[] = Array.isArray(res)
+        ? res
+        : Object.keys(res as Record<string, unknown>)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => (res as Record<string, unknown>)[k] as GrowthData)
+            .filter((item) =>
+              item && typeof item === 'object' &&
+              typeof (item as GrowthData).sales === 'number' &&
+              typeof (item as GrowthData).orders === 'number' &&
+              typeof (item as GrowthData).patients === 'number'
+            );
+
+      setData(normalized);
     } catch (error) {
       console.error("Error fetching growth data:", error);
       setData([]);
+      setCached(undefined);
+      setLastUpdated(undefined);
     } finally {
       setLoading(false);
     }
@@ -267,6 +283,9 @@ export default function GrowthChart() {
             <Calendar className="h-3 w-3 mr-1" />
             {period.charAt(0).toUpperCase() + period.slice(1)} View
           </Badge>
+          <Badge variant="outline" className="text-xs">
+            {cached ? 'Cached' : 'Live Data'}
+          </Badge>
         </div>
       </div>
 
@@ -309,12 +328,19 @@ export default function GrowthChart() {
               </CardTitle>
               <CardDescription>
                 {period.charAt(0).toUpperCase() + period.slice(1)} performance breakdown
+                {lastUpdated && (
+                  <span className="ml-2 text-[11px] text-muted-foreground">
+                    • Updated {new Date(lastUpdated).toLocaleString()}
+                  </span>
+                )}
               </CardDescription>
             </div>
-            <Tabs value={period} onValueChange={setPeriod}>
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as GrowthPeriod)}>
               <TabsList>
                 <TabsTrigger value="daily">Daily</TabsTrigger>
+                <TabsTrigger value="weekly">Weekly</TabsTrigger>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                <TabsTrigger value="yearly">Yearly</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>

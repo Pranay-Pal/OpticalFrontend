@@ -3,6 +3,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { ShopAdminAPI } from "@/lib/api";
 import { logout } from "@/store/authSlice";
 import { Menu, Bell, User, LogOut, Settings } from "lucide-react";
 
@@ -12,6 +14,27 @@ interface HeaderProps {
 
 export default function Header({ setSidebarOpen }: HeaderProps) {
   const dispatch = useDispatch();
+  const [notifCount, setNotifCount] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await ShopAdminAPI.reports.getInventoryAlerts();
+        const list = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.alerts)
+            ? res.alerts
+            : Array.isArray(res?.data)
+              ? res.data
+              : [];
+        if (!cancelled) setNotifCount(list.length || 0);
+      } catch {
+        if (!cancelled) setNotifCount(0);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
   
   return (
   <header className="sticky top-0 z-40 border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50">
@@ -43,9 +66,11 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative hover:text-primary">
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">
-              3
-            </span>
+            {notifCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 min-w-4 rounded-full bg-red-500 text-[10px] leading-4 px-1 text-white flex items-center justify-center">
+                {notifCount}
+              </span>
+            )}
             <span className="sr-only">View notifications</span>
           </Button>
 

@@ -7,7 +7,9 @@ import GrowthChart from "./GrowthChart";
 import RecentActivities from "./RecentActivities";
 import SalesReport from "./Reports/SalesReport";
 import ProductSalesReport from "./Reports/ProductSalesReport";
+import StaffSalesReport from "./Reports/StaffSalesReport";
 import InventoryReport from "./Reports/InventoryReport";
+import InventoryStatusReport from "./Reports/InventoryStatusReport";
 import LowStockAlerts from "./Reports/LowStockAlerts";
 import PatientReport from "./Reports/PatientReport";
 import PatientVisitHistory from "./Reports/PatientVisitHistory";
@@ -31,7 +33,9 @@ export default function ShopAdminDashboard() {
               <Route path="activities" element={<RecentActivities />} />
               <Route path="reports/sales" element={<SalesReport />} />
               <Route path="reports/products" element={<ProductSalesReport />} />
+              <Route path="reports/staff-sales" element={<StaffSalesReport />} />
               <Route path="reports/inventory" element={<InventoryReport />} />
+              <Route path="reports/inventory-status" element={<InventoryStatusReport />} />
               <Route path="reports/low-stock" element={<LowStockAlerts />} />
               <Route path="reports/patients" element={<PatientReport />} />
               <Route path="reports/patients/visits" element={<PatientVisitHistory />} />

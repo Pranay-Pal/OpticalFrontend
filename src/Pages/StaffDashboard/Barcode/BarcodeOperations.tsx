@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScanLine } from "lucide-react";
-import { StaffAPI } from "@/lib/staffApi";
+import { StaffAPI } from "@/lib/api";
 
 const BarcodeOperations = () => {
   const [barcode, setBarcode] = useState("");
@@ -18,7 +18,7 @@ const BarcodeOperations = () => {
     if (!barcode.trim()) return;
     try {
       setError(null); setLoading(true);
-      const data = await StaffAPI.getProductByBarcode(barcode.trim());
+      const data = await StaffAPI.inventory.getProductByBarcode(barcode.trim());
       setResult(data);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Lookup failed";
@@ -30,7 +30,7 @@ const BarcodeOperations = () => {
     if (!barcode.trim() || qty <= 0 || price <= 0) return;
     try {
       setError(null); setLoading(true);
-      const data = await StaffAPI.stockByBarcode({ barcode: barcode.trim(), quantity: qty, price });
+      const data = await StaffAPI.inventory.stockByBarcode({ barcode: barcode.trim(), quantity: qty, price });
       setResult(data);
     } catch (e) { const msg = e instanceof Error ? e.message : "Stock in failed"; setError(msg); }
     finally { setLoading(false); }
@@ -40,7 +40,7 @@ const BarcodeOperations = () => {
     if (!barcode.trim() || qty <= 0) return;
     try {
       setError(null); setLoading(true);
-      const data = await StaffAPI.stockOutByBarcode({ barcode: barcode.trim(), quantity: qty });
+      const data = await StaffAPI.inventory.stockOutByBarcode({ barcode: barcode.trim(), quantity: qty });
       setResult(data);
     } catch (e) { const msg = e instanceof Error ? e.message : "Stock out failed"; setError(msg); }
     finally { setLoading(false); }

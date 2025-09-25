@@ -58,7 +58,7 @@ const PatientsList = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.patients.getAll(shopId);
+        const response = await api.patients.getAll();
         setPatients(response.data || []);
       } catch (err) {
         const message = (() => {
@@ -136,7 +136,7 @@ const PatientsList = () => {
                 const fetchPatients = async () => {
                   try {
                     if (shopId) {
-                      const response = await api.patients.getAll(shopId);
+                      const response = await api.patients.getAll();
                       setPatients(response.data || []);
                     }
                   } catch (err) {

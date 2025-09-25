@@ -7,7 +7,7 @@ import RetailerDistributions from "./pages/RetailerDistributions.tsx";
 import RetailerReports from "./pages/RetailerReports.tsx";
 import RetailerProfile from "./pages/RetailerProfile.tsx";
 import { Menu } from "lucide-react";
-import { RetailerAPI } from "@/lib/retailerApi";
+import { RetailerAPI } from "@/lib/api";
 
 export default function RetailerDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,7 +17,7 @@ export default function RetailerDashboard() {
     let mounted = true;
     (async () => {
       try {
-        const p = await RetailerAPI.getProfile();
+        const p = await RetailerAPI.profile.get();
         if (!mounted) return;
         const name = (p?.companyName as string) || (p?.name as string) || "";
         setBrand(name);

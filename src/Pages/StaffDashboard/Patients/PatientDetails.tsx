@@ -86,7 +86,7 @@ const PatientDetails = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.patients.getById(parseInt(id), shopId);
+        const response = await api.patients.getById(parseInt(id));
         setPatient(response.data);
       } catch (err) {
         const message = (() => {

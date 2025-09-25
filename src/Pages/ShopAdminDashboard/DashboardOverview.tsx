@@ -2,38 +2,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState, type ComponentType, type SVGProps } from "react";
-import axios from "axios";
-import { 
-  DollarSign, 
-  ShoppingCart, 
-  Users, 
-  UserCheck, 
-  TrendingUp, 
-  TrendingDown, 
-  Package, 
+import { ShopAdminAPI } from "@/lib/api";
+import type { ShopAdminMetrics as Metrics } from "@/lib/types/shopAdmin";
+import {
+  DollarSign,
+  ShoppingCart,
+  Users,
+  UserCheck,
+  TrendingUp,
+  TrendingDown,
+  Package,
   AlertTriangle,
   Calendar,
-  Target
+  Target,
 } from "lucide-react";
-
-type Metrics = {
-  today: {
-    sales: number;
-    orders: number;
-    patients: number;
-    staff: number;
-  };
-  monthly: {
-    sales: number;
-    orders: number;
-    salesGrowth: number;
-    orderGrowth: number;
-  };
-  inventory: {
-    totalProducts: number;
-    lowStockAlerts: number;
-  };
-};
 
 function MetricCard({ 
   title, 
@@ -112,20 +94,15 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("https://staff-production-c6d9.up.railway.app/shop-admin/dashboard/metrics", {
-        headers: { 
-        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      }
-    })
-    .then(res => {
-      setMetrics(res.data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error("Error fetching metrics:", err);
-      setLoading(false);
-    });
+    ShopAdminAPI.dashboard.getMetrics()
+      .then(data => {
+        setMetrics(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching metrics:", err);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {

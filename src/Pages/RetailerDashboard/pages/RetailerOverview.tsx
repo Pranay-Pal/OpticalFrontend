@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TrendingUp, Package, Store, ChartColumn } from "lucide-react";
-import { RetailerAPI } from "@/lib/retailerApi";
+import { RetailerAPI } from "@/lib/api";
 
 type TopProduct = { product?: { name?: string; company?: { name?: string } } | null; soldQuantity?: number; revenue?: number }
 type SalesByShop = { shop?: { name?: string } | null; revenue?: number; quantity?: number; orderCount?: number }
@@ -31,8 +31,8 @@ export default function RetailerOverview() {
       try {
         setLoading(true);
         const [ov, sa]: [OverviewData, SalesData] = await Promise.all([
-          RetailerAPI.overview(),
-          RetailerAPI.salesAnalytics({ period: "month" }),
+          RetailerAPI.dashboard.overview(),
+          RetailerAPI.dashboard.salesAnalytics({ period: "month" }),
         ]);
         if (!mounted) return;
         setOverview(ov);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "react-router";
 import { Card } from "@/components/ui/card";
+import { ShopAdminAPI } from "@/lib/api";
 
 type Attendance = { id: number; checkIn: string; checkOut?: string | null };
 type Invoice = { id: number; totalAmount: number; patient: { name: string } ; createdAt: string };
@@ -14,12 +14,7 @@ export default function StaffDetails() {
 
   useEffect(() => {
     if (!staffId) return;
-    axios.get(`https://staff-production-c6d9.up.railway.app/shop-admin/staff/${staffId}`, {
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      }
-    }).then(res => setDetails(res.data));
+    ShopAdminAPI.staff.getById(parseInt(staffId)).then(data => setDetails(data));
   }, [staffId]);
 
   if (!details) return <div>Loading...</div>;

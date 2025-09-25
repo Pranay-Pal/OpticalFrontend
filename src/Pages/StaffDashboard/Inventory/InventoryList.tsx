@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { Link } from "react-router";
-import { StaffAPI } from "@/lib/staffApi";
+import { StaffAPI } from "@/lib/api";
 
 type InventoryRow = {
   id: number;

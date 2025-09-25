@@ -5,7 +5,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { ShopAdminAPI } from "@/lib/api";
+import type { ActivityItem, ActivitiesResponse } from "@/lib/types/shopAdmin";
 import Pagination from "./Pagination/Pagination";
 import { 
   Activity as ActivityIcon, 
@@ -21,12 +22,7 @@ import {
   Filter
 } from "lucide-react";
 
-type Activity = {
-  type: string;
-  message: string;
-  amount?: number;
-  timestamp: string;
-};
+type Activity = ActivityItem;
 
 function getActivityIcon(type: string) {
   switch (type.toLowerCase()) {
@@ -138,24 +134,79 @@ export default function RecentActivities() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [totalPages, setTotalPages] = useState<number | null>(null);
+  const [pageSize, setPageSize] = useState(10);
+  const [filterType, setFilterType] = useState<'all' | 'sales' | 'inventory' | 'attendance'>('all');
+  const [days, setDays] = useState(7);
+  const [cached, setCached] = useState<boolean | undefined>(undefined);
+  const [lastUpdated, setLastUpdated] = useState<string | undefined>(undefined);
+  const [hasMore, setHasMore] = useState<boolean | null>(null);
 
   const fetchActivities = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-  "https://staff-production-c6d9.up.railway.app/shop-admin/dashboard/activities",
-        {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-            "Content-Type": "application/json"
-          }
+      const res: ActivitiesResponse | any = await ShopAdminAPI.dashboard.getActivities({ page, limit: pageSize, type: filterType, days });
+
+      // Unwrap API envelope { status, data, timestamp }
+      let payload: any = res;
+      if (payload && typeof payload === 'object' && 'status' in payload && 'data' in payload) {
+        payload = payload.data;
+      }
+
+      // Capture meta
+      if (payload && typeof payload === 'object') {
+        setCached(typeof payload.cached === 'boolean' ? payload.cached : undefined);
+        setLastUpdated(typeof payload.lastUpdated === 'string' ? payload.lastUpdated : undefined);
+      } else {
+        setCached(undefined);
+        setLastUpdated(undefined);
+      }
+
+      // Normalize possible shapes
+      if (Array.isArray(payload)) {
+        setActivities(payload);
+        setHasMore(null);
+        setTotalPages(Math.ceil(payload.length / pageSize));
+      } else if (payload && typeof payload === 'object') {
+        // If { activities: [...], pagination: {...} }
+        if (Array.isArray(payload.activities)) {
+          setActivities(payload.activities);
+          const serverHasMore = typeof payload.pagination?.hasMore === 'boolean' ? payload.pagination.hasMore : null;
+          setHasMore(serverHasMore);
+          const derivedTotal = (typeof payload.pagination?.totalPages === 'number')
+            ? payload.pagination.totalPages
+            : (serverHasMore === null
+                ? Math.ceil(payload.activities.length / pageSize)
+                : (serverHasMore ? page + 1 : page));
+          setTotalPages(derivedTotal);
+        } else {
+          // Object keyed by numeric indexes + metadata
+          const items: Activity[] = Object.keys(payload)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => payload[k])
+            .filter((it: any) => it && typeof it === 'object' && typeof it.type === 'string' && typeof it.message === 'string' && typeof it.timestamp === 'string');
+
+          setActivities(items);
+          const serverHasMore = typeof payload.pagination?.hasMore === 'boolean' ? payload.pagination.hasMore : null;
+          setHasMore(serverHasMore);
+          const derivedTotal = (typeof payload.pagination?.totalPages === 'number')
+            ? payload.pagination.totalPages
+            : (serverHasMore === null
+                ? Math.ceil(items.length / pageSize)
+                : (serverHasMore ? page + 1 : page));
+          setTotalPages(derivedTotal);
         }
-      );
-      setActivities(response.data);
+      } else {
+        setActivities([]);
+        setHasMore(null);
+        setTotalPages(0);
+      }
     } catch (error) {
       console.error("Error fetching activities:", error);
       setActivities([]);
+      setHasMore(null);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
@@ -163,14 +214,18 @@ export default function RecentActivities() {
 
   useEffect(() => {
     fetchActivities();
-  }, []);
+  }, [page, pageSize, filterType, days]);
+
+  // When filters change, reset to first page
+  useEffect(() => {
+    setPage(1);
+  }, [pageSize, filterType, days]);
 
   const handleRefresh = () => {
     fetchActivities();
   };
 
-  const paginated = activities.slice((page - 1) * pageSize, page * pageSize);
-  const totalPages = Math.ceil(activities.length / pageSize);
+  const paginated = totalPages ? activities : activities.slice((page - 1) * pageSize, page * pageSize);
 
   // Activity stats
   const activityStats = activities.reduce((acc, activity) => {
@@ -226,6 +281,9 @@ export default function RecentActivities() {
           </h1>
           <p className="text-muted-foreground">
             Latest business activities and transactions
+            {lastUpdated && (
+              <span className="ml-2 text-[11px]">• Updated {new Date(lastUpdated).toLocaleString()}</span>
+            )}
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -241,8 +299,61 @@ export default function RecentActivities() {
           <Badge variant="secondary" className="text-xs">
             {activities.length} Activities
           </Badge>
+          <Badge variant="outline" className="text-xs">
+            {cached ? 'Cached' : 'Live Data'}
+          </Badge>
         </div>
       </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Filters</CardTitle>
+          <CardDescription>Select type, time window, and page size</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-3">
+            {/* Type */}
+            <div className="flex flex-col">
+              <label className="text-xs text-muted-foreground mb-1">Type</label>
+              <select
+                className="border rounded-md h-9 px-2 bg-background"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value as 'all' | 'sales' | 'inventory' | 'attendance')}
+              >
+                <option value="all">All</option>
+                <option value="sales">Sales</option>
+                <option value="inventory">Inventory</option>
+                <option value="attendance">Attendance</option>
+              </select>
+            </div>
+            {/* Days */}
+            <div className="flex flex-col">
+              <label className="text-xs text-muted-foreground mb-1">Days (last)</label>
+              <input
+                type="number"
+                min={1}
+                className="border rounded-md h-9 px-2 bg-background"
+                value={days}
+                onChange={(e) => setDays(Math.max(1, parseInt(e.target.value || '1', 10)))}
+              />
+            </div>
+            {/* Page size */}
+            <div className="flex flex-col">
+              <label className="text-xs text-muted-foreground mb-1">Page size</label>
+              <select
+                className="border rounded-md h-9 px-2 bg-background"
+                value={pageSize}
+                onChange={(e) => setPageSize(parseInt(e.target.value, 10))}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Activity Stats */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -336,12 +447,12 @@ export default function RecentActivities() {
             </ScrollArea>
           )}
           
-          {totalPages > 1 && (
+          {((totalPages ?? Math.ceil(activities.length / pageSize)) > 1) && (
             <div className="mt-6">
-              <Pagination 
-                page={page} 
-                totalPages={totalPages} 
-                onPageChange={setPage} 
+              <Pagination
+                page={page}
+                totalPages={(hasMore === true) ? (page + 1) : (totalPages ?? Math.ceil(activities.length / pageSize))}
+                onPageChange={setPage}
               />
             </div>
           )}

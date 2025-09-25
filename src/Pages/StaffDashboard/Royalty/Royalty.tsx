@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { StaffAPI } from "@/lib/staffApi";
+import { StaffAPI } from "@/lib/api";
 
 export default function Royalty() {
   const [patientId, setPatientId] = useState("");

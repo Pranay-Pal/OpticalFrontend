@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { BASE_URL } from '../lib/api';
 
 
 export type AuthType = 'staff' | 'shopAdmin' | 'retailer' | 'admin' | null;
@@ -48,9 +49,9 @@ export const login = createAsyncThunk(
     { rejectWithValue }
   ) => {
     let url = '';
-  if (type === 'staff') url = 'https://staff-production-c6d9.up.railway.app/api/auth/login/';
-  if (type === 'shopAdmin') url = 'https://staff-production-c6d9.up.railway.app/shop-admin/auth/login';
-  if (type === 'retailer') url = 'https://staff-production-c6d9.up.railway.app/retailer/auth/login';
+  if (type === 'staff') url = `${BASE_URL}/api/auth/login/`;
+  if (type === 'shopAdmin') url = `${BASE_URL}/shop-admin/auth/login`;
+  if (type === 'retailer') url = `${BASE_URL}/retailer/auth/login`;
     
     try {
       const response = await axios.post(url, { email, password }, {

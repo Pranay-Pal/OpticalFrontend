@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { RetailerAPI } from "@/lib/retailerApi";
+import { RetailerAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -27,7 +27,7 @@ export default function RetailerDistributions() {
   const fetchData = async (p = page) => {
     try {
       setLoading(true);
-      const data = await RetailerAPI.distributions({
+      const data = await RetailerAPI.distributions.getAll({
         page: p,
         limit: 20,
         shopId: filters.shopId || undefined,
@@ -135,12 +135,12 @@ export default function RetailerDistributions() {
                                 <Button
                                   onClick={async () => {
                                     try {
-                                      await RetailerAPI.updateDeliveryStatus(d.id, {
+                                      await RetailerAPI.distributions.updateDeliveryStatus(d.id, {
                                         deliveryStatus: deliveryForm.status,
                                         deliveryDate: deliveryForm.date ? new Date(deliveryForm.date).toISOString() : undefined,
                                         trackingNumber: deliveryForm.tracking || undefined,
                                       });
-                                      const refreshed = await RetailerAPI.distributions({ page: 1, limit: 20 });
+                                      const refreshed = await RetailerAPI.distributions.getAll({ page: 1, limit: 20 });
                                       setList(refreshed as { distributions: DistributionRow[] });
                                     } catch {
                                       // silently ignore and keep dialog open
@@ -168,11 +168,11 @@ export default function RetailerDistributions() {
                                 <Button
                                   onClick={async () => {
                                     try {
-                                      await RetailerAPI.updatePaymentStatus(d.id, {
+                                      await RetailerAPI.distributions.updatePaymentStatus(d.id, {
                                         paymentStatus: paymentForm.status,
                                         paidDate: paymentForm.date ? new Date(paymentForm.date).toISOString() : undefined,
                                       });
-                                      const refreshed = await RetailerAPI.distributions({ page: 1, limit: 20 });
+                                      const refreshed = await RetailerAPI.distributions.getAll({ page: 1, limit: 20 });
                                       setList(refreshed as { distributions: DistributionRow[] });
                                     } catch {
                                       // silently ignore and keep dialog open

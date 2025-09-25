@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StaffAPI } from "@/lib/staffApi";
+import { StaffAPI } from "@/lib/api";
 
 type Receipt = {
   id: number;
