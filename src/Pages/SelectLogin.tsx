@@ -23,9 +23,9 @@ type LoginFormInputs = {
   password: string;
 };
 
-type LoginType = "staff" | "shopAdmin" | "retailer" | "admin";
+type LoginType = "staff" | "shopAdmin" | "retailer" | "doctor" | "admin";
 
-function SelectLogin() {
+function Login() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { token, type, loading, error } = useAuth();
@@ -47,7 +47,8 @@ function SelectLogin() {
     if (token && type) {
       if (type === "staff") navigate("/staff-dashboard", { replace: true });
       if (type === "shopAdmin") navigate("/shop-admin-dashboard", { replace: true });
-      if (type === "retailer") navigate("/retailer-dashboard", { replace: true });
+  if (type === "retailer") navigate("/retailer-dashboard", { replace: true });
+  if (type === "doctor") navigate("/doctor-dashboard", { replace: true });
     }
   }, [token, type, navigate]);
 
@@ -59,12 +60,16 @@ function SelectLogin() {
         return "Shop Admin";
       case "retailer":
         return "Retailer";
+      case "doctor":
+        return "Doctor";
       case "admin":
         return "Admin (Coming Soon)";
       default:
         return "Select Type";
     }
   }, [selectedType]);
+
+  // (Removed legacy auto-redirect logic)
 
   return (
     <div
@@ -80,7 +85,7 @@ function SelectLogin() {
       <div className="relative flex min-h-screen items-center justify-center px-4">
         <form className="w-full max-w-md glass-card rounded-2xl p-6 sm:p-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-bold text-brand-gradient">Sign in</h2>
+          <h2 className="text-2xl font-bold text-brand-gradient">Sign In</h2>
           <p className="text-sm text-muted-foreground">Choose a role and enter your credentials</p>
         </div>
 
@@ -100,6 +105,7 @@ function SelectLogin() {
               <DropdownMenuItem onSelect={() => setSelectedType("staff")}>Staff</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setSelectedType("shopAdmin")}>Shop Admin</DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setSelectedType("retailer")}>Retailer</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setSelectedType("doctor")}>Doctor</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="opacity-60 pointer-events-none">Admin (Coming Soon)</DropdownMenuItem>
             </DropdownMenuContent>
@@ -145,10 +151,18 @@ function SelectLogin() {
           <Button type="submit" className="w-full clay-button" disabled={loading || selectedType === "admin"}>
             {loading ? "Signing in..." : `Sign in as ${typeLabel}`}
           </Button>
+          {/* Quick direct links (optional) */}
+          <div className="pt-2 text-center space-x-2 text-xs text-muted-foreground">
+            <span className="hidden sm:inline">Direct:</span>
+            <button type="button" onClick={() => navigate('/staff-login')} className="underline hover:text-foreground">Staff</button>
+            <button type="button" onClick={() => navigate('/shop-admin-login')} className="underline hover:text-foreground">Shop Admin</button>
+            <button type="button" onClick={() => navigate('/retailer-login')} className="underline hover:text-foreground">Retailer</button>
+            <button type="button" onClick={() => navigate('/doctor-login')} className="underline hover:text-foreground">Doctor</button>
+          </div>
         </form>
       </div>
     </div>
   );
 }
 
-export default SelectLogin;
+export default Login;

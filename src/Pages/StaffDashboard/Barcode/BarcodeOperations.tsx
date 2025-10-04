@@ -27,10 +27,10 @@ const BarcodeOperations = () => {
   };
 
   const handleStockIn = async () => {
-    if (!barcode.trim() || qty <= 0 || price <= 0) return;
+    if (!barcode.trim() || qty <= 0) return;
     try {
       setError(null); setLoading(true);
-      const data = await StaffAPI.inventory.stockByBarcode({ barcode: barcode.trim(), quantity: qty, price });
+      const data = await StaffAPI.inventory.stockByBarcode({ barcode: barcode.trim(), quantity: qty, action: 'IN' });
       setResult(data);
     } catch (e) { const msg = e instanceof Error ? e.message : "Stock in failed"; setError(msg); }
     finally { setLoading(false); }

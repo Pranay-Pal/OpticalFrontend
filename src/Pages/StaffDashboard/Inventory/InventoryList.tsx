@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus } from "lucide-react";
+import { Plus, ScanLine } from "lucide-react";
+import { TrendingUp as TrendingUpIcon } from "lucide-react";
 import { Link } from "react-router";
 import { StaffAPI } from "@/lib/api";
 
@@ -23,7 +24,7 @@ const InventoryList = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-  const res = (await StaffAPI.inventory.getInventory()) as InventoryResponse;
+  const res = (await StaffAPI.inventory.getAll()) as InventoryResponse;
       setData(res || { inventory: [], summary: null });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load inventory";
@@ -37,17 +38,55 @@ const InventoryList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
           <p className="text-gray-600">Manage products and stock levels</p>
         </div>
-        <Link to="/staff-dashboard/inventory/products/create">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Product
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/staff-dashboard/barcode/generate">
+            <Button variant="outline">
+              <ScanLine className="mr-2 h-4 w-4" />
+              Generate Barcode
+            </Button>
+          </Link>
+          <Link to="/staff-dashboard/inventory/quick-stock">
+            <Button variant="outline">
+              <TrendingUpIcon className="mr-2 h-4 w-4" />
+              Quick Stock
+            </Button>
+          </Link>
+          <Link to="/staff-dashboard/inventory/stock-out">
+            <Button variant="outline">
+              <TrendingUpIcon className="mr-2 h-4 w-4" />
+              Stock Out
+            </Button>
+          </Link>
+          <Link to="/staff-dashboard/barcode/assign">
+            <Button variant="outline">
+              <ScanLine className="mr-2 h-4 w-4" />
+              Assign Barcodes
+            </Button>
+          </Link>
+          <Link to="/staff-dashboard/barcode/sku">
+            <Button variant="outline">
+              <ScanLine className="mr-2 h-4 w-4" />
+              Generate SKU
+            </Button>
+          </Link>
+          <Link to="/staff-dashboard/barcode/missing">
+            <Button variant="outline">
+              <ScanLine className="mr-2 h-4 w-4" />
+              Missing
+            </Button>
+          </Link>
+          <Link to="/staff-dashboard/inventory/products/create">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Product
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Card className="glass-card">
@@ -88,7 +127,13 @@ const InventoryList = () => {
                     })
                     .map((row: InventoryRow) => (
                     <tr key={row.id} className="border-t">
-                      <td className="py-2 pr-4">{row.product?.name}</td>
+                      <td className="py-2 pr-4">
+                        {row.product?.name ? (
+                          <Link to={`/staff-dashboard/inventory/products/${row.id}`} className="text-blue-600 hover:underline">
+                            {row.product.name}
+                          </Link>
+                        ) : null}
+                      </td>
                       <td className="py-2 pr-4">{row.product?.company?.name}</td>
                       <td className="py-2 pr-4">{row.product?.eyewearType}</td>
                       <td className="py-2 pr-4">{row.product?.barcode}</td>

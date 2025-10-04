@@ -18,6 +18,7 @@ import {
   Receipt,
   BarChart,
   TrendingUp as TrendingUpIcon,
+  CalendarDays,
 } from "lucide-react";
 
 interface IconProps { className?: string }
@@ -36,6 +37,11 @@ const navigation: NavigationItem[] = [
     icon: LayoutDashboard,
   },
   {
+    name: "Attendance",
+    href: "/staff-dashboard/attendance",
+    icon: CalendarDays,
+  },
+  {
     name: "Patients",
     href: "/staff-dashboard/patients",
     icon: Users,
@@ -51,6 +57,8 @@ const navigation: NavigationItem[] = [
     submenu: [
       { name: "All Customers", href: "/staff-dashboard/customers", icon: Users },
       { name: "Add Customer", href: "/staff-dashboard/customers/create", icon: UserPlus },
+      { name: "Create + Invoice", href: "/staff-dashboard/customers/create-invoice", icon: Plus },
+      { name: "Hotspots", href: "/staff-dashboard/customers/hotspots", icon: Users },
     ],
   },
   {
@@ -58,16 +66,29 @@ const navigation: NavigationItem[] = [
     href: "/staff-dashboard/inventory",
     icon: Package,
     submenu: [
-      { name: "Product Catalog", href: "/staff-dashboard/inventory", icon: Package },
+  { name: "Overview", href: "/staff-dashboard/inventory", icon: Package },
+  { name: "Companies", href: "/staff-dashboard/inventory/companies", icon: Package },
+  { name: "Product Catalog", href: "/staff-dashboard/inventory/products", icon: Package },
       { name: "Add Product", href: "/staff-dashboard/inventory/products/create", icon: Plus },
+      { name: "Add Company", href: "/staff-dashboard/inventory/companies/new", icon: Plus },
   { name: "Stock Movements", href: "/staff-dashboard/inventory/stock-movements", icon: TrendingUpIcon },
+  { name: "Quick Stock", href: "/staff-dashboard/inventory/quick-stock", icon: TrendingUpIcon },
+  { name: "Stock Out (Barcode)", href: "/staff-dashboard/inventory/stock-out", icon: TrendingUpIcon },
+  { name: "Barcode Lookup", href: "/staff-dashboard/inventory/lookup-barcode", icon: ScanLine },
     ],
   },
   {
-    name: "Barcode Scanner",
+    name: "Barcode",
     href: "/staff-dashboard/barcode",
     icon: ScanLine,
     badge: "New",
+    submenu: [
+      { name: "Scanner", href: "/staff-dashboard/barcode", icon: ScanLine },
+      { name: "Generate Label", href: "/staff-dashboard/barcode/generate", icon: ScanLine },
+      { name: "Assign Barcodes", href: "/staff-dashboard/barcode/assign", icon: ScanLine },
+      { name: "Generate SKU", href: "/staff-dashboard/barcode/sku", icon: ScanLine },
+      { name: "Missing", href: "/staff-dashboard/barcode/missing", icon: ScanLine },
+    ],
   },
   {
     name: "Invoices",
@@ -91,6 +112,16 @@ const navigation: NavigationItem[] = [
     name: "Reports",
     href: "/staff-dashboard/reports",
     icon: BarChart,
+  },
+  {
+    name: "Gift Cards",
+    href: "/staff-dashboard/gift-cards",
+    icon: Receipt,
+    submenu: [
+      { name: "Issue Card", href: "/staff-dashboard/gift-cards/issue", icon: Plus },
+      { name: "Redeem Card", href: "/staff-dashboard/gift-cards/redeem", icon: Plus },
+      { name: "Check Balance", href: "/staff-dashboard/gift-cards/balance", icon: Plus },
+    ],
   },
   {
     name: "Stock Receipts",

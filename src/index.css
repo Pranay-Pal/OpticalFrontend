@@ -41,6 +41,15 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+
+/* Ultra-small viewport refinements (<=360px) */
+@media (max-width: 360px) {
+  .p-6 { padding: 1rem !important; }
+  .space-y-6 > :where(:not(:last-child)) { margin-bottom: 1.25rem !important; }
+  header .text-xl { font-size: 1.05rem !important; }
+  table th, table td { padding: 0.4rem 0.45rem !important; }
+}
+
 :root {
   --radius: 0.625rem;
   /* Light theme: vibrant, modern palette */

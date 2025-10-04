@@ -373,6 +373,11 @@ const PatientDetails = () => {
                 <FileText className="mr-2 h-4 w-4" />
                 Create Prescription
               </Button>
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link to={`/staff-dashboard/gift-cards/issue?patientId=${patient.id}`}>
+                  Issue Gift Card
+                </Link>
+              </Button>
             </CardContent>
           </Card>
           

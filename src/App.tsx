@@ -1,18 +1,25 @@
-// Combined login is handled in SelectLogin
+// Combined login is handled in Login
 import StaffDashboard from "./Pages/StaffDashboard/index";
-import SelectLogin from "./Pages/SelectLogin";
+import Login from "./Pages/SelectLogin"; // renamed component exported as Login
 import RetailerDashboard from "./Pages/RetailerDashboard";
+import DoctorDashboard from "./Pages/DoctorDashboard";
 import { Routes, Route, Navigate } from "react-router";
 import { useAuth } from "./hooks/useAuth";
 import ShopAdminDashboard from "./Pages/ShopAdminDashboard/index";
 
-function ProtectedRoute({ children, type }: { children: React.ReactNode; type: string }) {
-  const { token, type: userType } = useAuth();
+interface ProtectedRouteProps { children: React.ReactNode; type: string; }
+
+function ProtectedRoute({ children, type }: ProtectedRouteProps) {
+  const { token, type: userType, loading } = useAuth();
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-[40vh] text-sm text-muted-foreground">Authenticating...</div>;
+  }
+
   if (!token || userType !== type) {
-    // Redirect to correct login page
-  // Single entry now: send to root
-  return <Navigate to="/" replace />;
-    // Add more types as needed
+    // Provide role-specific unauthorized flag & intended redirect
+    const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
+    return <Navigate to={`/?unauthorized=${type}&redirect=${redirectPath}`} replace />;
   }
   return <>{children}</>;
 }
@@ -20,7 +27,7 @@ function ProtectedRoute({ children, type }: { children: React.ReactNode; type: s
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<SelectLogin />} />
+  <Route path="/" element={<Login />} />
       <Route
         path="/staff-dashboard/*"
         element={
@@ -42,6 +49,14 @@ function App() {
         element={
           <ProtectedRoute type="retailer">
             <RetailerDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor-dashboard/*"
+        element={
+          <ProtectedRoute type="doctor">
+            <DoctorDashboard />
           </ProtectedRoute>
         }
       />

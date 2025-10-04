@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { BASE_URL, StaffAPI } from '../lib/api';
+import { BASE_URL, StaffAPI, DoctorAPI } from '../lib/api';
 
 
-export type AuthType = 'staff' | 'shopAdmin' | 'retailer' | 'admin' | null;
+export type AuthType = 'staff' | 'shopAdmin' | 'retailer' | 'doctor' | 'admin' | null;
 
 interface AuthState {
   token: string | null;
@@ -52,6 +52,7 @@ export const login = createAsyncThunk(
   if (type === 'staff') url = `${BASE_URL}/api/auth/login`;
   if (type === 'shopAdmin') url = `${BASE_URL}/shop-admin/auth/login`;
   if (type === 'retailer') url = `${BASE_URL}/retailer/auth/login`;
+  if (type === 'doctor') url = `${BASE_URL}/doctor/login`;
     
     try {
       const response = await axios.post(url, { email, password }, {
@@ -73,6 +74,8 @@ export const login = createAsyncThunk(
         user = response.data.shopAdmin || response.data;
       } else if (type === 'retailer') {
         user = response.data.retailer || response.data;
+      } else if (type === 'doctor') {
+        user = response.data.doctor || response.data;
       }
       
       return { token: response.data.token, type, user };
@@ -93,6 +96,9 @@ export const logoutWithAttendance = createAsyncThunk(
       // If user is staff, call attendance logout API
       if (state.auth.type === 'staff' && state.auth.token) {
         await StaffAPI.attendance.logout();
+      } else if (state.auth.type === 'doctor' && state.auth.token) {
+        // Doctor logout (attendance handled server-side)
+        try { await DoctorAPI.auth.logout(); } catch { /* ignore */ }
       }
       return true;
     } catch (err) {

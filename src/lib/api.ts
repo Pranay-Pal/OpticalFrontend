@@ -1,6 +1,14 @@
 import axios, { AxiosHeaders, type AxiosRequestHeaders, type AxiosResponse } from 'axios';
 import { store } from '../store';
 import { logout, logoutWithAttendance } from '../store/authSlice';
+// Doctor domain types
+import type {
+  PatientsResponse,
+  PrescriptionCreatePayload,
+  PrescriptionCreateResponse,
+  PrescriptionsListResponse,
+  PrescriptionDetailResponse
+} from './types/doctor';
 
 // ============================================================================
 // BASE AXIOS CONFIGURATION
@@ -35,6 +43,12 @@ const staffApi = axios.create({
 // Create retailer-specific axios instance  
 const retailerApi = axios.create({
   baseURL: `${BASE_URL}/retailer`,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+// Create doctor-specific axios instance
+const doctorApi = axios.create({
+  baseURL: `${BASE_URL}/doctor`,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -95,6 +109,22 @@ retailerApi.interceptors.request.use((config) => {
   return config;
 });
 
+// Doctor API interceptor
+doctorApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem("jwt");
+  if (token) {
+    const value = `Bearer ${token}`;
+    if (config.headers instanceof AxiosHeaders) {
+      config.headers.set("Authorization", value);
+    } else {
+      const plain = { ...(config.headers as Record<string, unknown>), Authorization: value };
+      config.headers = plain as unknown as AxiosRequestHeaders;
+    }
+  }
+  logApiCall(config.method || 'GET', config.url || '', config.data);
+  return config;
+});
+
 // ============================================================================
 // RESPONSE INTERCEPTORS - Handle errors and logging
 // ============================================================================
@@ -132,6 +162,8 @@ apiClient.interceptors.response.use(
         window.location.href = '/shop-admin-login';
       } else if (userType === 'retailer') {
         window.location.href = '/retailer-login';
+      } else if (userType === 'doctor') {
+        window.location.href = '/doctor-login';
       } else {
         window.location.href = '/staff-login';
       }
@@ -185,6 +217,27 @@ retailerApi.interceptors.response.use(
   }
 );
 
+// Doctor API response interceptor
+doctorApi.interceptors.response.use(
+  (res: AxiosResponse) => {
+    console.log('✅ Doctor API Response:', res.config.url, {
+      status: res.status,
+      data: res.data,
+      timestamp: new Date().toISOString()
+    });
+    return res;
+  },
+  (error) => {
+    console.error('❌ Doctor API Error:', error.config?.url, {
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message,
+      timestamp: new Date().toISOString()
+    });
+    const message = error?.response?.data?.error || error?.response?.data?.message || error.message || "Request failed";
+    return Promise.reject(new Error(message));
+  }
+);
+
 // ============================================================================
 // UNIFIED API EXPORTS - All APIs consolidated with consistent structure
 // ============================================================================
@@ -208,12 +261,15 @@ export const StaffAPI = {
 
   // Barcode Management
   barcode: {
+    // Generate a barcode label image (PNG/SVG). API returns binary image data.
     generateLabel: (data: { 
       productId?: number; 
       format?: string; 
       width?: number; 
       height?: number; 
-    }) => staffApi.post('/api/barcode/label', data).then((r) => r.data),
+    }) => staffApi
+      .post('/api/barcode/label', data, { responseType: 'blob' })
+      .then((r) => r.data as Blob),
     generate: (productId: number) => 
       staffApi.post(`/api/barcode/generate/${productId}`).then((r) => r.data),
     generateSku: (productId: number) => 
@@ -462,6 +518,16 @@ export const StaffAPI = {
 // RETAILER API ENDPOINTS  
 // ============================================================================
 export const RetailerAPI = {
+  // Authentication
+  auth: {
+    register: (data: { name: string; email: string; password: string; phone?: string; address?: string; businessType?: string }) =>
+      retailerApi.post('/auth/register', data).then((r) => r.data),
+    login: (data: { email: string; password: string }) =>
+      retailerApi.post('/auth/login', data).then((r) => r.data),
+    logout: () => retailerApi.post('/auth/logout').then((r) => r.data),
+    changePassword: (data: { currentPassword: string; newPassword: string }) =>
+      retailerApi.put('/auth/change-password', data).then((r) => r.data),
+  },
   // Dashboard Analytics
   dashboard: {
     overview: () => retailerApi.get("/dashboard/overview").then((r) => r.data),
@@ -599,6 +665,39 @@ export const RetailerAPI = {
     changePassword: (data: { currentPassword: string; newPassword: string }) =>
       retailerApi.put('/auth/change-password', data).then((r) => r.data),
     refreshToken: () => retailerApi.post('/auth/refresh-token').then((r) => r.data),
+  },
+};
+
+// ============================================================================
+// DOCTOR API ENDPOINTS
+// ============================================================================
+export const DoctorAPI = {
+  // Auth & Session (login handles attendance per backend spec)
+  auth: {
+    login: (data: { email: string; password: string }) =>
+      doctorApi.post('/login', data).then((r) => r.data),
+    logout: () => doctorApi.post('/logout').then((r) => r.data),
+  },
+
+  // Patients (shop scoped automatically by token)
+  patients: {
+    // Return EXACT documented shape: { success, data: Patient[], count }
+    getAll: (): Promise<PatientsResponse> => doctorApi.get('/patients').then((r) => r.data as PatientsResponse),
+  },
+
+  // Prescriptions
+  prescriptions: {
+    // Create prescription: returns documented shape
+    create: (data: PrescriptionCreatePayload): Promise<PrescriptionCreateResponse> =>
+      doctorApi.post('/prescriptions', data).then((r) => r.data as PrescriptionCreateResponse),
+    // List prescriptions: returns documented shape { prescriptions, total, page, totalPages }
+    list: (params: { page?: number; limit?: number; patientId?: number } = {}): Promise<PrescriptionsListResponse> =>
+      doctorApi.get('/prescriptions', { params }).then((r) => r.data as PrescriptionsListResponse),
+    // Detail returns the prescription object directly
+    getById: (id: number): Promise<PrescriptionDetailResponse> =>
+      doctorApi.get(`/prescriptions/${id}`).then((r) => r.data as PrescriptionDetailResponse),
+    getPdf: (id: number) => doctorApi.get(`/prescriptions/${id}/pdf`, { responseType: 'blob' }).then((r) => r.data as Blob),
+    getThermal: (id: number) => doctorApi.get(`/prescriptions/${id}/thermal`, { responseType: 'text' }).then((r) => r.data as string),
   },
 };
 

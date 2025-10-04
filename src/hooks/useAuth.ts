@@ -26,6 +26,7 @@ export const useAuth = () => {
     error: auth.error,
     isAuthenticated: !!auth.token,
     isStaff: auth.type === 'staff',
+    isDoctor: auth.type === 'doctor',
     shopId: user?.shopId ?? user?.shop?.id,
     logout: handleLogout,
   };

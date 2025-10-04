@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, Bell, User, LogOut, Settings } from "lucide-react";
+import { Menu, Bell, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,18 +12,15 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "../../../hooks/useAuth";
+import AttendanceLogout from "../Attendance/AttendanceLogout";
 
 interface StaffHeaderProps {
   onMenuClick: () => void;
 }
 
 const StaffHeader = ({ onMenuClick }: StaffHeaderProps) => {
-  const { user, logout } = useAuth() as { user: { name?: string; email?: string } | null; logout: () => void };
+  const { user } = useAuth() as { user: { name?: string; email?: string } | null };
   const [notifications] = useState(0);
-
-  const handleLogout = () => {
-    logout();
-  };
 
   const getUserInitials = (name: string) => {
     return name
@@ -56,7 +53,7 @@ const StaffHeader = ({ onMenuClick }: StaffHeaderProps) => {
           <h1 className="text-lg font-bold text-brand-gradient">Staff Dashboard</h1>
         </div>
 
-        <div className="flex items-center gap-x-4 lg:gap-x-6">
+  <div className="flex items-center gap-x-4 lg:gap-x-6">
           {/* Notifications */}
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="h-5 w-5" />
@@ -70,6 +67,9 @@ const StaffHeader = ({ onMenuClick }: StaffHeaderProps) => {
             )}
             <span className="sr-only">View notifications</span>
           </Button>
+
+          {/* Attendance-aware logout */}
+          <AttendanceLogout />
 
           {/* Separator */}
           <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" />
@@ -106,10 +106,6 @@ const StaffHeader = ({ onMenuClick }: StaffHeaderProps) => {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
