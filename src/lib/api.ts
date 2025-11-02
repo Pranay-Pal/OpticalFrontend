@@ -58,7 +58,7 @@ import type {
 // BASE AXIOS CONFIGURATION
 // ============================================================================
 
-export const BASE_URL = 'https://staff-production-bf87.up.railway.app';
+export const BASE_URL = 'https://staff-optical.onrender.com';
 
 // Utility function for consistent API logging
 const logApiCall = (method: string, url: string, data?: unknown, response?: unknown) => {
