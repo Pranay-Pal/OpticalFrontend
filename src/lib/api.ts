@@ -330,9 +330,9 @@ export const StaffAPI = {
   // Patient Management
   patients: {
     getAll: (params: { page?: number; limit?: number; search?: string } = {}) =>
-      staffApi.get('/patients', { params }).then((r) => r.data),
+      staffApi.get('/api/patient', { params }).then((r) => r.data),
     getById: (id: number) => 
-      staffApi.get(`/patients/${id}`).then((r) => r.data),
+      staffApi.get(`/api/patient/${id}`).then((r) => r.data),
     create: (data: { 
       name: string; 
       age?: number; 
@@ -340,7 +340,7 @@ export const StaffAPI = {
       phone?: string; 
       address?: string; 
       medicalHistory?: string;
-    }) => staffApi.post('/patients', data).then((r) => r.data),
+    }) => staffApi.post('/api/patient', data).then((r) => r.data),
     update: (id: number, data: {
       name?: string;
       age?: number;
