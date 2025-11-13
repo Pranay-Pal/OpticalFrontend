@@ -88,26 +88,23 @@ const InvoiceCreateForm: React.FC<InvoiceCreateFormProps> = ({ onCreated }) => {
     setItems(list => list.length === 1 ? list : list.filter(l => l.id !== id));
   };
   const addItem = () => {
-    setItems(list => [...list, { id: `li-${list.length + 1}`, quantity: 1, unitPrice: '', discount: '', cgstRate: '', sgstRate: '' }]);
+    setItems(list => [...list, { id: `li-${list.length + 1}`, quantity: 1, discount: '', cgst: '', sgst: '' }]);
   };
 
-  // Derived totals
+  // Derived totals (note: backend calculates final prices from product.basePrice)
   const totals = useMemo(() => {
     let sub = 0; let cgst = 0; let sgst = 0; let discountTotal = 0;
     items.forEach(i => {
       const qty = i.quantity || 0;
-      const price = parseFloat(i.unitPrice || '0') || 0;
-      const disc = parseFloat(i.discount || '0') || 0; // treat as absolute amount discount (not %) for now
+      const price = i.productPrice || 0;
+      const disc = parseFloat(i.discount || '0') || 0; // absolute amount discount
+      const cgstAmt = parseFloat(i.cgst || '0') || 0; // absolute CGST amount
+      const sgstAmt = parseFloat(i.sgst || '0') || 0; // absolute SGST amount
       const lineBase = qty * price;
-      const lineTaxBase = Math.max(0, lineBase - disc);
-      const cgstRate = parseFloat(i.cgstRate || '0') || 0;
-      const sgstRate = parseFloat(i.sgstRate || '0') || 0;
-      const lineCgst = lineTaxBase * (cgstRate / 100);
-      const lineSgst = lineTaxBase * (sgstRate / 100);
       sub += lineBase;
       discountTotal += disc;
-      cgst += lineCgst;
-      sgst += lineSgst;
+      cgst += cgstAmt;
+      sgst += sgstAmt;
     });
     const taxable = Math.max(0, sub - discountTotal);
     const grand = taxable + cgst + sgst;
@@ -116,13 +113,13 @@ const InvoiceCreateForm: React.FC<InvoiceCreateFormProps> = ({ onCreated }) => {
 
   const valid = useMemo(() => {
     if (items.length === 0) return false;
-    if (!items.some(i => i.productId && i.quantity > 0 && parseFloat(i.unitPrice || '0') > 0)) return false;
+    if (!items.some(i => i.productId && i.quantity > 0)) return false;
     // patientId optional (API supports patient or maybe future customer). For now allow empty.
     return true;
   }, [items]);
 
   const resetForm = () => {
-    setItems([{ id: 'li-1', quantity: 1, unitPrice: '', discount: '', cgstRate: '', sgstRate: '' }]);
+    setItems([{ id: 'li-1', quantity: 1, discount: '', cgst: '', sgst: '' }]);
     setPatientId('');
     setNotes('');
     setError(null);
@@ -134,13 +131,12 @@ const InvoiceCreateForm: React.FC<InvoiceCreateFormProps> = ({ onCreated }) => {
     if (!valid) return;
     setSubmitting(true); setError(null); setSuccess(null);
     try {
-      const apiItems = items.filter(i => i.productId && i.quantity > 0 && parseFloat(i.unitPrice || '0') > 0).map(i => ({
+      const apiItems = items.filter(i => i.productId && i.quantity > 0).map(i => ({
         productId: i.productId!,
         quantity: i.quantity,
-        unitPrice: parseFloat(i.unitPrice || '0'),
         discount: i.discount ? parseFloat(i.discount) : undefined,
-        cgstRate: i.cgstRate ? parseFloat(i.cgstRate) : undefined,
-        sgstRate: i.sgstRate ? parseFloat(i.sgstRate) : undefined,
+        cgst: i.cgst ? parseFloat(i.cgst) : undefined,
+        sgst: i.sgst ? parseFloat(i.sgst) : undefined,
       }));
       const payload: Parameters<typeof StaffAPI.invoices.create>[0] = {
         items: apiItems,
@@ -236,15 +232,13 @@ const InvoiceCreateForm: React.FC<InvoiceCreateFormProps> = ({ onCreated }) => {
             {items.map(li => {
               const product = productOptions.find(p => p.id === li.productId);
               const qty = li.quantity;
-              const price = parseFloat(li.unitPrice || '0') || 0;
+              const price = li.productPrice || 0;
               const disc = parseFloat(li.discount || '0') || 0;
-              const cgstRate = parseFloat(li.cgstRate || '0') || 0;
-              const sgstRate = parseFloat(li.sgstRate || '0') || 0;
+              const cgstAmt = parseFloat(li.cgst || '0') || 0;
+              const sgstAmt = parseFloat(li.sgst || '0') || 0;
               const lineBase = qty * price;
               const lineTaxable = Math.max(0, lineBase - disc);
-              const lineCgst = lineTaxable * (cgstRate/100);
-              const lineSgst = lineTaxable * (sgstRate/100);
-              const lineTotal = lineTaxable + lineCgst + lineSgst;
+              const lineTotal = lineTaxable + cgstAmt + sgstAmt;
               return (
                 <Card key={li.id} className="p-3 space-y-2 border-dashed">
                   <div className="flex flex-col md:grid md:grid-cols-10 gap-2 md:items-end">
@@ -261,19 +255,19 @@ const InvoiceCreateForm: React.FC<InvoiceCreateFormProps> = ({ onCreated }) => {
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] font-medium uppercase">Unit Price</label>
-                      <Input type="number" min={0} step="0.01" value={li.unitPrice} onChange={e => updateItem(li.id, { unitPrice: e.target.value })} />
+                      <div className="border rounded-md p-2 text-xs bg-muted">{formatCurrency(price)}</div>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] font-medium uppercase">Discount (₹)</label>
                       <Input type="number" min={0} step="0.01" value={li.discount} onChange={e => updateItem(li.id, { discount: e.target.value })} placeholder="0" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-medium uppercase">CGST %</label>
-                      <Input type="number" min={0} step="0.01" value={li.cgstRate} onChange={e => updateItem(li.id, { cgstRate: e.target.value })} placeholder="0" />
+                      <label className="text-[10px] font-medium uppercase">CGST (₹)</label>
+                      <Input type="number" min={0} step="0.01" value={li.cgst} onChange={e => updateItem(li.id, { cgst: e.target.value })} placeholder="0" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-medium uppercase">SGST %</label>
-                      <Input type="number" min={0} step="0.01" value={li.sgstRate} onChange={e => updateItem(li.id, { sgstRate: e.target.value })} placeholder="0" />
+                      <label className="text-[10px] font-medium uppercase">SGST (₹)</label>
+                      <Input type="number" min={0} step="0.01" value={li.sgst} onChange={e => updateItem(li.id, { sgst: e.target.value })} placeholder="0" />
                     </div>
                     <div className="col-span-2 space-y-1 text-right md:text-left">
                       <label className="text-[10px] font-medium uppercase">Line Total</label>

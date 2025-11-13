@@ -17,10 +17,11 @@ interface InvoiceItem {
   product?: { id?: number; name?: string; barcode?: string };
   productName?: string; // fallback if api returns name inline
   quantity?: number;
-  unitPrice?: number;
-  discount?: number;
-  cgstRate?: number;
-  sgstRate?: number;
+  unitPrice?: number; // calculated by backend
+  discount?: number; // absolute amount in ₹
+  cgst?: number; // absolute amount in ₹
+  sgst?: number; // absolute amount in ₹
+  totalPrice?: number; // calculated by backend
 }
 
 interface PaymentRecord {
@@ -108,12 +109,14 @@ const InvoiceDetail: React.FC = () => {
     data.items.forEach(it => {
       const qty = it.quantity || 0;
       const price = it.unitPrice || 0;
-      const disc = it.discount || 0;
+      const disc = it.discount || 0; // absolute amount
+      const cgstAmt = it.cgst || 0; // absolute amount
+      const sgstAmt = it.sgst || 0; // absolute amount
       const base = qty * price;
-      const taxable = Math.max(0, base - disc);
-      const cRate = it.cgstRate || 0; const sRate = it.sgstRate || 0;
-      const c = taxable * (cRate/100); const s = taxable * (sRate/100);
-      sub += base; discount += disc; cgst += c; sgst += s;
+      sub += base; 
+      discount += disc; 
+      cgst += cgstAmt; 
+      sgst += sgstAmt;
     });
     const grand = (sub - discount) + cgst + sgst;
     return { sub, discount, cgst, sgst, grand };
@@ -418,25 +421,29 @@ const InvoiceDetail: React.FC = () => {
                   <TableHead className="text-right">Qty</TableHead>
                   <TableHead className="text-right">Unit</TableHead>
                   <TableHead className="text-right">Discount</TableHead>
-                  <TableHead className="text-right">CGST%</TableHead>
-                  <TableHead className="text-right">SGST%</TableHead>
+                  <TableHead className="text-right">CGST</TableHead>
+                  <TableHead className="text-right">SGST</TableHead>
                   <TableHead className="text-right">Line Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.items!.map((it, idx) => {
-                  const qty = it.quantity || 0; const price = it.unitPrice || 0; const disc = it.discount || 0;
-                  const base = qty * price; const taxable = Math.max(0, base - disc);
-                  const c = taxable * ((it.cgstRate || 0)/100); const s = taxable * ((it.sgstRate || 0)/100);
-                  const total = taxable + c + s;
+                  const qty = it.quantity || 0; 
+                  const price = it.unitPrice || 0; 
+                  const disc = it.discount || 0; // absolute amount
+                  const cgstAmt = it.cgst || 0; // absolute amount
+                  const sgstAmt = it.sgst || 0; // absolute amount
+                  const base = qty * price; 
+                  const taxable = Math.max(0, base - disc);
+                  const total = taxable + cgstAmt + sgstAmt;
                   return (
                     <TableRow key={idx}>
                       <TableCell className="whitespace-nowrap">{it.product?.name || it.productName || it.productId || '—'}</TableCell>
                       <TableCell className="text-right">{qty}</TableCell>
                       <TableCell className="text-right">{formatCurrency(price)}</TableCell>
                       <TableCell className="text-right">{disc ? formatCurrency(disc) : '—'}</TableCell>
-                      <TableCell className="text-right">{it.cgstRate || 0}</TableCell>
-                      <TableCell className="text-right">{it.sgstRate || 0}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(cgstAmt)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(sgstAmt)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(total)}</TableCell>
                     </TableRow>
                   );
