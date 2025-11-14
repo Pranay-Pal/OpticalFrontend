@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { StaffAPI } from "@/lib/api";
+
+interface Company {
+  id: number;
+  name: string;
+  description?: string;
+  _count?: { products: number };
+}
 
 interface ProductFormState {
   name: string;
@@ -35,15 +43,46 @@ const initialState: ProductFormState = {
   frameType: "RECTANGULAR",
 };
 interface Props {
-  onCreated?: (product: any) => void;
+  onCreated?: (product: { id?: number; [key: string]: unknown }) => void;
 }
 
 const ProductCreateForm: React.FC<Props> = ({ onCreated }) => {
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState<ProductFormState>(initialState);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [created, setCreated] = useState<any | null>(null);
+  const [created, setCreated] = useState<{
+    id?: number;
+    [key: string]: unknown;
+  } | null>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
+
+  // Fetch companies on mount and auto-fill from URL params
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const data = await StaffAPI.inventory.getCompanies();
+        const companyList = Array.isArray(data) ? data : [];
+        setCompanies(companyList);
+
+        // Auto-fill from URL params if available
+        const companyIdParam = searchParams.get("companyId");
+        if (
+          companyIdParam &&
+          companyList.some((c: Company) => c.id === Number(companyIdParam))
+        ) {
+          setForm((prev) => ({ ...prev, companyId: companyIdParam }));
+        }
+      } catch {
+        // Failed to load companies, users can enter manually
+      } finally {
+        setLoadingCompanies(false);
+      }
+    };
+    fetchCompanies();
+  }, [searchParams]);
 
   const validate = (): boolean => {
     const e: Record<string, string> = {};
@@ -107,8 +146,11 @@ const ProductCreateForm: React.FC<Props> = ({ onCreated }) => {
       const product = await StaffAPI.inventory.addProduct(payload);
       setCreated(product);
       onCreated?.(product);
-    } catch (e: any) {
-      setServerError(e?.response?.data?.message || "Failed to create product");
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setServerError(
+        error?.response?.data?.message || "Failed to create product"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -160,14 +202,29 @@ const ProductCreateForm: React.FC<Props> = ({ onCreated }) => {
               )}
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium">Company ID</label>
-              <Input
-                type="number"
+              <label className="text-xs font-medium">Company</label>
+              <select
+                className="border rounded-md p-2 w-full"
                 value={form.companyId}
                 onChange={(e) =>
                   setForm({ ...form, companyId: e.target.value })
                 }
-              />
+                disabled={loadingCompanies}
+              >
+                <option value="">
+                  {loadingCompanies
+                    ? "Loading companies..."
+                    : "Select a company"}
+                </option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name} (ID: {company.id}){" "}
+                    {company._count
+                      ? `- ${company._count.products} products`
+                      : ""}
+                  </option>
+                ))}
+              </select>
               {errors.companyId && (
                 <p className="text-xs text-red-500">{errors.companyId}</p>
               )}
