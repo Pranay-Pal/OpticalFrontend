@@ -1043,7 +1043,7 @@ export const ShopAdminAPI = {
       name: string;
       role: string;
       shopId: number;
-    }) => shopAdminApi.post("/api/auth/register", data).then((r) => r.data),
+    }) => staffApi.post("/api/auth/register", data).then((r) => r.data),
     getAll: (
       params: {
         page?: number;
