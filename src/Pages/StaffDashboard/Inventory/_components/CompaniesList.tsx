@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { StaffAPI } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ type SortKey = "name" | "products" | "created";
 type SortDir = "asc" | "desc";
 
 const CompaniesList: React.FC = () => {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,9 +122,7 @@ const CompaniesList: React.FC = () => {
           </Button>
           <Button
             size="sm"
-            onClick={() => {
-              window.location.href = "/staff-dashboard/inventory/companies/new";
-            }}
+            onClick={() => navigate("/staff-dashboard/inventory/companies/new")}
           >
             <Plus className="h-4 w-4 mr-1" /> New Company
           </Button>
@@ -207,10 +207,9 @@ const CompaniesList: React.FC = () => {
                       </p>
                       <Button
                         size="sm"
-                        onClick={() => {
-                          window.location.href =
-                            "/staff-dashboard/inventory/companies/new";
-                        }}
+                        onClick={() =>
+                          navigate("/staff-dashboard/inventory/companies/new")
+                        }
                       >
                         Create First Company
                       </Button>
@@ -251,7 +250,9 @@ const CompaniesList: React.FC = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => {
-                            window.location.href = `/staff-dashboard/inventory/companies/${c.id}/products`;
+                            navigate(
+                              `/staff-dashboard/inventory/companies/${c.id}/products`
+                            );
                           }}
                         >
                           View Products
@@ -260,7 +261,9 @@ const CompaniesList: React.FC = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => {
-                            window.location.href = `/staff-dashboard/inventory/products/create?companyId=${c.id}`;
+                            navigate(
+                              `/staff-dashboard/inventory/products/create?companyId=${c.id}`
+                            );
                           }}
                         >
                           Add Product
