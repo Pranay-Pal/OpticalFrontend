@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { StaffAPI } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 interface CompanyCreateFormProps { onCreated?: (company: any) => void; }
 
 const CompanyCreateForm: React.FC<CompanyCreateFormProps> = ({ onCreated }) => {
+	const navigate = useNavigate();
 	const [name, setName] = useState('');
 	const [description, setDescription] = useState('');
 	const [companies, setCompanies] = useState<any[]>([]);
@@ -46,6 +48,16 @@ const CompanyCreateForm: React.FC<CompanyCreateFormProps> = ({ onCreated }) => {
 		finally { setSubmitting(false); }
 	};
 
+	// Auto-redirect to companies list after 2 seconds on success
+	useEffect(() => {
+		if (success) {
+			const timer = setTimeout(() => {
+				navigate('/staff-dashboard/inventory/companies');
+			}, 2000);
+			return () => clearTimeout(timer);
+		}
+	}, [success, navigate]);
+
 	return (
 		<Card className="p-4 space-y-4">
 			<div className="space-y-1">
@@ -57,10 +69,11 @@ const CompanyCreateForm: React.FC<CompanyCreateFormProps> = ({ onCreated }) => {
 				<Alert variant="default" className="flex flex-col items-start space-y-1">
 					<span className="font-medium">Company Created</span>
 					<span className="text-xs text-muted-foreground">{success.name}</span>
+					<span className="text-xs text-muted-foreground">Redirecting to companies list in 2 seconds...</span>
 					<div className="flex gap-2 pt-1 flex-wrap">
-						<Button size="sm" variant="outline" onClick={() => window.location.href = `/staff-dashboard/inventory/products/create?companyId=${success.id}`}>Add Product</Button>
+						<Button size="sm" variant="outline" onClick={() => navigate(`/staff-dashboard/inventory/products/create?companyId=${success.id}`)}>Add Product</Button>
 						<Button size="sm" variant="outline" onClick={() => setSuccess(null)}>Add Another</Button>
-						<Button size="sm" variant="outline" onClick={() => window.location.href = '/staff-dashboard/inventory/products'}>Catalog</Button>
+						<Button size="sm" variant="outline" onClick={() => navigate('/staff-dashboard/inventory/companies')}>Go to Companies</Button>
 					</div>
 				</Alert>
 			)}
